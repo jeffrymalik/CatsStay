@@ -17,3 +17,7 @@ Route::get('/signup', function () {
 Route::get('/catcare', function () {
     return view('catcare');
 });
+
+Route::get('/aboutus', function () {
+    return view('aboutus');
+});
