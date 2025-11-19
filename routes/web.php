@@ -3,21 +3,25 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('pages.home');
 });
 
 Route::get('/login', function () {
-    return view('login');
+    return view('pages.login');
 });
 
 Route::get('/signup', function () {
-    return view('signUp');
+    return view('pages.signup');
 });
 
 Route::get('/catcare', function () {
-    return view('catcare');
+    return view('pages.catcare');
+});
+
+Route::get('/aboutus', function () {
+    return view('pages.aboutus');
 });
 
 Route::get('/contact', function () {
-    return view('contact');
+    return view('pages.contact');
 });

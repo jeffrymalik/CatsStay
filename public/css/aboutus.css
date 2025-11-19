@@ -1,0 +1,187 @@
+/* Container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 60px 20px;
+}
+
+/* Hero Section */
+.hero-section {
+    display: flex;
+    gap: 60px;
+    align-items: flex-start;
+    margin-bottom: 100px;
+    flex-wrap: wrap;
+}
+
+.hero-content {
+    flex: 1;
+    min-width: 350px;
+    padding-top: 20px;
+}
+
+.breadcrumb {
+    font-size: 13px;
+    color: #999;
+    margin-bottom: 20px;
+}
+
+.breadcrumb a {
+    color: #999;
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    color: #ff9d42;
+}
+
+.breadcrumb span {
+    color: #333;
+}
+
+.hero-title {
+    font-size: 38px;
+    font-weight: bold;
+    color: #1a1a1a;
+    line-height: 1.3;
+    margin-bottom: 25px;
+}
+
+.hero-description {
+    font-size: 15px;
+    color: #666;
+    line-height: 1.7;
+}
+
+.hero-image {
+    flex: 1;
+    min-width: 350px;
+}
+
+.hero-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+/* Vision Section */
+.vision-section {
+    display: flex;
+    gap: 60px;
+    align-items: center;
+    margin-bottom: 100px;
+    flex-wrap: wrap;
+}
+
+.vision-image {
+    flex: 1;
+    min-width: 300px;
+}
+
+.vision-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 15px;
+}
+
+.vision-content {
+    flex: 1;
+    min-width: 300px;
+}
+
+.section-title {
+    font-size: 32px;
+    font-weight: bold;
+    color: #1a1a1a;
+    margin-bottom: 20px;
+}
+
+.section-description {
+    font-size: 15px;
+    color: #666;
+    line-height: 1.7;
+}
+
+/* Mission Section */
+.mission-section {
+    display: flex;
+    gap: 60px;
+    align-items: center;
+    margin-bottom: 60px;
+    flex-wrap: wrap;
+}
+
+.mission-content {
+    flex: 1;
+    min-width: 300px;
+}
+
+.mission-list {
+    list-style: none;
+    padding: 0;
+    counter-reset: mission-counter;
+}
+
+.mission-list li {
+    font-size: 15px;
+    color: #666;
+    line-height: 1.7;
+    margin-bottom: 12px;
+    padding-left: 30px;
+    position: relative;
+    counter-increment: mission-counter;
+}
+
+.mission-list li::before {
+    content: counter(mission-counter) ".";
+    position: absolute;
+    left: 0;
+    color: #1a1a1a;
+    font-weight: 600;
+}
+
+.mission-image {
+    flex: 1;
+    min-width: 300px;
+}
+
+.mission-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 15px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 40px 20px;
+    }
+
+    .hero-title {
+        font-size: 30px;
+    }
+
+    .section-title {
+        font-size: 26px;
+    }
+
+    .hero-section,
+    .vision-section,
+    .mission-section {
+        gap: 40px;
+        margin-bottom: 60px;
+    }
+
+    .hero-section {
+        flex-direction: column;
+    }
+
+    .vision-section {
+        flex-direction: column;
+    }
+
+    .mission-section {
+        flex-direction: column-reverse;
+    }
+}
