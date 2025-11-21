@@ -21,6 +21,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',           // TAMBAHAN BARU
+        'photo',          // TAMBAHAN BARU
+        'is_verified',    // TAMBAHAN BARU
     ];
 
     /**
@@ -43,6 +46,37 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_verified' => 'boolean',  // TAMBAHAN BARU
         ];
+    }
+
+        /**
+     * Helper method: Check if user is Normal User
+     *
+     * @return bool
+     */
+    public function isNormalUser()
+    {
+        return $this->role === 'normal';
+    }
+
+        /**
+     * Helper method: Check if user is Pet Sitter
+     *
+     * @return bool
+     */
+    public function isPetSitter()
+    {
+        return $this->role === 'sitter';
+    }
+
+        /**
+     * Helper method: Check if user is Admin
+     *
+     * @return bool
+     */
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
     }
 }

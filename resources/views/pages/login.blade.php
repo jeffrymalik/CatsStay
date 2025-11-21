@@ -26,17 +26,37 @@
         
         <p class="login-subtitle">
           If you don't have an account register<br>
-          You can <a href="#" class="register-link">Sign Up here !</a>
+          You can <a href="{{ route('signup') }}" class="register-link">Sign Up here !</a>
         </p>
 
-        <form class="login-form">
+        <!-- Display Success Message -->
+        @if(session('success'))
+          <div class="alert alert-success" style="padding: 12px 16px; background: #d4edda; color: #155724; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #28a745;">
+            {{ session('success') }}
+          </div>
+        @endif
+
+        <!-- Display Error Messages -->
+        @if($errors->any())
+          <div class="alert alert-danger" style="padding: 12px 16px; background: #f8d7da; color: #721c24; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #dc3545;">
+            @foreach($errors->all() as $error)
+              <p style="margin: 5px 0;">{{ $error }}</p>
+            @endforeach
+          </div>
+        @endif
+
+        <form class="login-form" method="POST" action="{{ route('login') }}">
+          @csrf
+          
           <div class="form-group">
             <label for="email" class="form-label">Email</label>
             <input 
               type="email" 
               id="email" 
+              name="email"
               class="form-input" 
               placeholder="Example@email.com"
+              value="{{ old('email') }}"
               required
             >
           </div>
@@ -45,7 +65,8 @@
             <label for="password" class="form-label">Password</label>
             <input 
               type="password" 
-              id="password" 
+              id="password"
+              name="password" 
               class="form-input" 
               placeholder="At least 8 characters"
               required
@@ -54,7 +75,7 @@
 
           <div class="form-options">
             <label class="checkbox-wrapper">
-              <input type="checkbox" class="checkbox-input">
+              <input type="checkbox" name="remember" class="checkbox-input">
               <span class="checkbox-label">Remember me</span>
             </label>
             <a href="#" class="forgot-link">Forgot Password ?</a>
@@ -82,7 +103,7 @@
     <!-- Right Side - Illustration -->
     <div class="login-right">
       <div class="illustration-wrapper">
-        <img src="images/unnamed2.png" alt="Cute cat illustration" class="cat-illustration">
+        <img src="{{asset('images/unnamed2.png')}}" alt="Cute cat illustration" class="cat-illustration">
         <div class="orange-blob"></div>
         <div class="decorative-dots">
           <span class="dot"></span>

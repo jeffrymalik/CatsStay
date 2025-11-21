@@ -51,111 +51,109 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // Real-time validation
-  emailInput.addEventListener('input', function() {
-    if (this.value) {
-      if (!validateEmail(this.value)) {
-        showError(this, 'Please enter a valid email address');
+  if (emailInput) {
+    emailInput.addEventListener('input', function() {
+      if (this.value) {
+        if (!validateEmail(this.value)) {
+          showError(this, 'Please enter a valid email address');
+        } else {
+          clearError(this);
+        }
       } else {
         clearError(this);
       }
-    } else {
-      clearError(this);
-    }
-  });
+    });
+  }
 
-  passwordInput.addEventListener('input', function() {
-    if (this.value) {
-      if (!validatePassword(this.value)) {
-        showError(this, 'Password must be at least 8 characters');
+  if (passwordInput) {
+    passwordInput.addEventListener('input', function() {
+      if (this.value) {
+        if (!validatePassword(this.value)) {
+          showError(this, 'Password must be at least 8 characters');
+        } else {
+          clearError(this);
+        }
       } else {
         clearError(this);
       }
-    } else {
-      clearError(this);
-    }
-  });
+    });
+  }
 
-  // Form Submit Handler
-  loginForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    let isValid = true;
+  // Form Submit Handler - ONLY CLIENT-SIDE VALIDATION
+  if (loginForm) {
+    loginForm.addEventListener('submit', function(e) {
+      let isValid = true;
 
-    // Validate Email
-    if (!emailInput.value) {
-      showError(emailInput, 'Email is required');
-      isValid = false;
-    } else if (!validateEmail(emailInput.value)) {
-      showError(emailInput, 'Please enter a valid email address');
-      isValid = false;
-    } else {
-      clearError(emailInput);
-    }
+      // Validate Email
+      if (!emailInput.value) {
+        showError(emailInput, 'Email is required');
+        isValid = false;
+      } else if (!validateEmail(emailInput.value)) {
+        showError(emailInput, 'Please enter a valid email address');
+        isValid = false;
+      } else {
+        clearError(emailInput);
+      }
 
-    // Validate Password
-    if (!passwordInput.value) {
-      showError(passwordInput, 'Password is required');
-      isValid = false;
-    } else if (!validatePassword(passwordInput.value)) {
-      showError(passwordInput, 'Password must be at least 8 characters');
-      isValid = false;
-    } else {
-      clearError(passwordInput);
-    }
+      // Validate Password
+      if (!passwordInput.value) {
+        showError(passwordInput, 'Password is required');
+        isValid = false;
+      } else if (!validatePassword(passwordInput.value)) {
+        showError(passwordInput, 'Password must be at least 8 characters');
+        isValid = false;
+      } else {
+        clearError(passwordInput);
+      }
 
-    if (isValid) {
-      // Show loading state
-      const originalText = btnLogin.textContent;
-      btnLogin.textContent = 'Signing In...';
-      btnLogin.disabled = true;
-      btnLogin.style.opacity = '0.7';
-      btnLogin.style.cursor = 'not-allowed';
+      // Jika validasi gagal, prevent submit
+      if (!isValid) {
+        e.preventDefault();
+        return false;
+      }
 
-      // Simulate API call (Replace with actual API call)
-      setTimeout(() => {
-        // On success
-        console.log('Login successful!');
-        console.log('Email:', emailInput.value);
-        console.log('Password:', passwordInput.value);
-        
-        // Redirect or show success message
-        // window.location.href = '/dashboard';
-        
-        // Reset button state (for demo)
-        btnLogin.textContent = originalText;
-        btnLogin.disabled = false;
-        btnLogin.style.opacity = '1';
-        btnLogin.style.cursor = 'pointer';
-        
-        alert('Login successful! (Demo)');
-      }, 1500);
-    }
-  });
+      // Jika validasi berhasil, tampilkan loading state
+      // Tapi JANGAN prevent default - biarkan form submit ke server
+      if (btnLogin) {
+        btnLogin.textContent = 'Signing In...';
+        btnLogin.disabled = true;
+        btnLogin.style.opacity = '0.7';
+        btnLogin.style.cursor = 'not-allowed';
+      }
+
+      // Form akan submit ke server secara normal
+      // Laravel controller akan handle login process
+    });
+  }
 
   // Google Sign In Handler
-  btnGoogle.addEventListener('click', function() {
-    const originalHTML = this.innerHTML;
-    this.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Loading...';
-    this.disabled = true;
-    this.style.opacity = '0.7';
+  if (btnGoogle) {
+    btnGoogle.addEventListener('click', function() {
+      const originalHTML = this.innerHTML;
+      this.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Loading...';
+      this.disabled = true;
+      this.style.opacity = '0.7';
 
-    // Simulate Google OAuth (Replace with actual Google OAuth)
-    setTimeout(() => {
-      console.log('Google Sign In clicked');
-      
-      // Reset button
-      this.innerHTML = originalHTML;
-      this.disabled = false;
-      this.style.opacity = '1';
-      
-      alert('Google Sign In (Demo)');
-    }, 1500);
-  });
+      // Simulate Google OAuth (Replace with actual Google OAuth)
+      setTimeout(() => {
+        console.log('Google Sign In clicked');
+        
+        // Reset button
+        this.innerHTML = originalHTML;
+        this.disabled = false;
+        this.style.opacity = '1';
+        
+        alert('Google Sign In - Coming Soon!');
+      }, 1500);
+    });
+  }
 
   // Clear errors when input gets focus
   [emailInput, passwordInput].forEach(input => {
-    input.addEventListener('focus', function() {
-      clearError(this);
-    });
+    if (input) {
+      input.addEventListener('focus', function() {
+        clearError(this);
+      });
+    }
   });
 });

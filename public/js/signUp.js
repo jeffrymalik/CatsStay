@@ -36,6 +36,10 @@ document.addEventListener('DOMContentLoaded', function() {
       roleCards.forEach(c => c.classList.remove('active'));
       this.classList.add('active');
       selectedRole = this.dataset.role;
+      
+      // Set value ke hidden input ✅
+      document.getElementById('roleInput').value = selectedRole;
+      
       btnNextRole.disabled = false;
       
       this.style.transform = 'scale(1.05)';
@@ -81,6 +85,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const errorDiv = document.createElement('div');
     errorDiv.className = 'error-message';
     errorDiv.textContent = message;
+    errorDiv.style.color = '#f44336';
+    errorDiv.style.fontSize = '0.85rem';
+    errorDiv.style.marginTop = '5px';
     formGroup.appendChild(errorDiv);
   }
 
@@ -166,10 +173,13 @@ document.addEventListener('DOMContentLoaded', function() {
   
   if (uploadArea && fileInput) {
     uploadArea.addEventListener('click', () => fileInput.click());
-    btnChooseFile.addEventListener('click', (e) => {
-      e.stopPropagation();
-      fileInput.click();
-    });
+    
+    if (btnChooseFile) {
+      btnChooseFile.addEventListener('click', (e) => {
+        e.stopPropagation();
+        fileInput.click();
+      });
+    }
 
     // Drag & Drop
     uploadArea.addEventListener('dragover', (e) => {
@@ -218,80 +228,32 @@ document.addEventListener('DOMContentLoaded', function() {
       reader.readAsDataURL(file);
     }
 
-    btnRemoveImage.addEventListener('click', function(e) {
-      e.stopPropagation();
-      uploadedFile = null;
-      previewImage.src = '';
-      previewArea.style.display = 'none';
-      uploadArea.style.display = 'block';
-      fileInput.value = '';
-      btnSubmit.disabled = true;
-    });
+    if (btnRemoveImage) {
+      btnRemoveImage.addEventListener('click', function(e) {
+        e.stopPropagation();
+        uploadedFile = null;
+        previewImage.src = '';
+        previewArea.style.display = 'none';
+        uploadArea.style.display = 'block';
+        fileInput.value = '';
+        btnSubmit.disabled = true;
+      });
+    }
   }
 
-  // Submit for Pet Sitter
-  if (btnSubmit) {
-    btnSubmit.addEventListener('click', function() {
-      if (!uploadedFile) {
-        alert('Please upload a photo for verification');
-        return;
-      }
-
-      const originalText = this.textContent;
-      this.textContent = 'Uploading...';
-      this.disabled = true;
-
-      setTimeout(() => {
-        console.log('Registration Success!');
-        console.log('Name:', nameInput.value);
-        console.log('Email:', emailInput.value);
-        console.log('Role:', selectedRole);
-        console.log('Photo:', uploadedFile.name);
-
-        alert('Registration successful!\n\nRole: Pet Sitter\nPhoto uploaded for verification.');
-        // window.location.href = '/login';
-        
-        this.textContent = originalText;
-        this.disabled = false;
-      }, 2000);
-    });
-  }
-
-  // Submit for Normal User
-  if (btnSubmitNormal) {
-    btnSubmitNormal.addEventListener('click', function() {
-      const originalText = this.textContent;
-      this.textContent = 'Creating Account...';
-      this.disabled = true;
-
-      setTimeout(() => {
-        console.log('Registration Success!');
-        console.log('Name:', nameInput.value);
-        console.log('Email:', emailInput.value);
-        console.log('Role:', selectedRole);
-
-        alert('Registration successful!\n\nRole: Normal User\nWelcome to Cats Stay!');
-        // window.location.href = '/login';
-        
-        this.textContent = originalText;
-        this.disabled = false;
-      }, 1500);
-    });
-  }
+  // HAPUS EVENT LISTENER UNTUK SUBMIT
+  // Biarkan form submit secara natural ke Laravel
 
   // ================ Back Button Navigation ================
   
   btnBack.addEventListener('click', function() {
     if (currentStep === 3) {
-      // Go back to step 2
       stepPhoto.classList.remove('active');
       stepFinish.classList.remove('active');
       stepInfo.classList.add('active');
       currentStep = 2;
-      // Keep back button visible
       btnBack.style.display = 'flex';
     } else if (currentStep === 2) {
-      // Go back to step 1
       stepInfo.classList.remove('active');
       stepRole.classList.add('active');
       btnBack.style.display = 'none';
@@ -304,24 +266,5 @@ document.addEventListener('DOMContentLoaded', function() {
     input.addEventListener('focus', function() {
       clearError(this);
     });
-  });
-
-  // Keyboard navigation for role cards
-  document.addEventListener('keydown', function(e) {
-    if (currentStep === 1 && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
-      e.preventDefault();
-      const activeCard = document.querySelector('.role-card.active');
-      const cards = Array.from(roleCards);
-      
-      if (!activeCard) {
-        cards[0].click();
-      } else {
-        const currentIndex = cards.indexOf(activeCard);
-        const nextIndex = e.key === 'ArrowDown' 
-          ? (currentIndex + 1) % cards.length 
-          : (currentIndex - 1 + cards.length) % cards.length;
-        cards[nextIndex].click();
-      }
-    }
   });
 });
