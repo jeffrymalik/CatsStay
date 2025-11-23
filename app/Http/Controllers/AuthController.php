@@ -43,7 +43,7 @@ class AuthController extends Controller
             $request->session()->regenerate();
             
             // Redirect ke halaman yang dituju atau home
-            return redirect()->intended('/')->with('success', 'Login successful!');
+            return redirect()->intended('/dashboard')->with('success', 'Login successful!');
         }
 
         // Jika gagal, return error
@@ -59,7 +59,7 @@ class AuthController extends Controller
     {
         // Jika sudah login, redirect ke home
         if (Auth::check()) {
-            return redirect('/');
+            return redirect('/dashboard');
         }
         
         return view('pages.signup');
@@ -99,7 +99,7 @@ class AuthController extends Controller
         Auth::login($user);
 
         // Redirect ke home dengan success message
-        return redirect('/')->with('success', 'Registration successful! Welcome to Cats Stay!');
+        return redirect('/dashboard')->with('success', 'Registration successful! Welcome to Cats Stay!');
     }
 
     /**
@@ -117,6 +117,6 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
         
         // Redirect ke login dengan success message
-        return redirect('/login')->with('success', 'Logged out successfully!');
+        return redirect('/')->with('success', 'Logged out successfully!');
     }
 }

@@ -1,0 +1,791 @@
+/* Dashboard Styles - Matching Cats Stay Design System */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 50px;
+    background: #F9F9F9;
+    min-height: calc(100vh - 76px);
+}
+
+/* ================ Welcome Section ================ */
+.welcome-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    padding: 30px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.welcome-content {
+    flex: 1;
+}
+
+.welcome-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 8px;
+    font-family: 'Gotham', sans-serif;
+}
+
+.welcome-subtitle {
+    font-size: 1rem;
+    color: #666;
+    font-weight: 400;
+}
+
+.welcome-date {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    background: #FFF3E0;
+    border-radius: 12px;
+    color: #FFA726;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+/* ================ Stats Grid ================ */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.stat-card {
+    background: white;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(255, 167, 38, 0.15);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.stat-icon.orange {
+    background: linear-gradient(135deg, #FFA726 0%, #FF9800 100%);
+}
+
+.stat-icon.green {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+}
+
+.stat-icon.purple {
+    background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);
+}
+
+.stat-icon.blue {
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #999;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.stat-value {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 6px;
+    font-family: 'Gotham', sans-serif;
+}
+
+.stat-trend {
+    font-size: 0.85rem;
+    color: #666;
+    font-weight: 500;
+}
+
+.stat-trend.up {
+    color: #4CAF50;
+}
+
+.stat-trend.down {
+    color: #f44336;
+}
+
+/* ================ Quick Actions Section ================ */
+.quick-actions-section {
+    margin-bottom: 40px;
+}
+
+.section-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 25px;
+    font-family: 'Gotham', sans-serif;
+}
+
+.quick-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.action-card {
+    background: white;
+    padding: 30px 25px;
+    border-radius: 16px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.action-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(255, 167, 38, 0.2);
+    border-color: #FFA726;
+}
+
+.action-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.action-card:hover .action-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.action-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 8px;
+    font-family: 'Gotham', sans-serif;
+}
+
+.action-desc {
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 400;
+}
+
+/* ================ Recommended Sitters Section ================ */
+.recommended-section {
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-top: 40px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.view-all-link {
+    color: #FFA726;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.view-all-link:hover {
+    color: #FF9800;
+    gap: 8px;
+}
+
+.sitters-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+}
+
+.sitter-card {
+    background: #FAFAFA;
+    border: 2px solid #F0F0F0;
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.sitter-card:hover {
+    transform: translateY(-8px);
+    border-color: #FFA726;
+    box-shadow: 0 12px 30px rgba(255, 167, 38, 0.15);
+}
+
+.sitter-card-header {
+    position: relative;
+    height: 200px;
+    background: linear-gradient(135deg, #FFA726 0%, #FF9800 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sitter-card-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.sitter-badge-top {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+}
+
+.verified-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    background: rgba(76, 175, 80, 0.95);
+    color: white;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.sitter-card-body {
+    padding: 20px;
+}
+
+.sitter-card-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 8px;
+    font-family: 'Gotham', sans-serif;
+    text-align: center;
+}
+
+.sitter-card-location {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.sitter-card-rating {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #E0E0E0;
+}
+
+.rating-stars {
+    display: flex;
+    gap: 3px;
+}
+
+.rating-text {
+    font-size: 0.85rem;
+    color: #666;
+    font-weight: 500;
+}
+
+.sitter-card-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #E0E0E0;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.sitter-card-price {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.price-label {
+    font-size: 0.8rem;
+    color: #999;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.price-amount {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #FFA726;
+    font-family: 'Gotham', sans-serif;
+}
+
+.price-amount span {
+    font-size: 0.9rem;
+    color: #999;
+    font-weight: 500;
+}
+
+.sitter-card-footer {
+    display: flex;
+    gap: 10px;
+    padding: 0 20px 20px;
+}
+
+.btn-view-profile,
+.btn-book-now {
+    flex: 1;
+    padding: 10px 20px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.btn-view-profile {
+    background: white;
+    color: #FFA726;
+    border: 2px solid #FFA726;
+}
+
+.btn-view-profile:hover {
+    background: #FFF3E0;
+    transform: translateY(-2px);
+}
+
+.btn-book-now {
+    background: #FFA726;
+    color: white;
+    border: 2px solid #FFA726;
+}
+
+.btn-book-now:hover {
+    background: #FF9800;
+    transform: translateY(-2px);
+}
+
+/* Empty State Small for Recommended Section */
+.empty-state-small {
+    text-align: center;
+    padding: 40px 30px;
+}
+
+.empty-icon-small {
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.empty-title-small {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 8px;
+    font-family: 'Gotham', sans-serif;
+}
+
+.empty-desc-small {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 20px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    background: white;
+    color: #FFA726;
+    border: 2px solid #FFA726;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background: #FFF3E0;
+    transform: translateY(-2px);
+}
+
+/* ================ Upcoming Section ================ */
+.upcoming-section {
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* ================ Booking Card ================ */
+.bookings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.booking-card {
+    background: #FAFAFA;
+    border: 2px solid #F0F0F0;
+    border-radius: 14px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.booking-card:hover {
+    border-color: #FFA726;
+    box-shadow: 0 4px 15px rgba(255, 167, 38, 0.1);
+}
+
+.booking-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.booking-date {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #FFA726;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.booking-status {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.booking-status.confirmed {
+    background: #E8F5E9;
+    color: #4CAF50;
+}
+
+.booking-status.pending {
+    background: #FFF3E0;
+    color: #FFA726;
+}
+
+.booking-status.cancelled {
+    background: #FFEBEE;
+    color: #f44336;
+}
+
+.booking-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #E0E0E0;
+}
+
+.sitter-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.sitter-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #FFA726;
+}
+
+.sitter-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.sitter-location {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.booking-price {
+    text-align: right;
+}
+
+.price-label {
+    font-size: 0.85rem;
+    color: #999;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.price-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #FFA726;
+    font-family: 'Gotham', sans-serif;
+}
+
+.booking-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-view,
+.btn-message {
+    flex: 1;
+    padding: 10px 20px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.btn-view {
+    background: #FFA726;
+    color: white;
+}
+
+.btn-view:hover {
+    background: #FF9800;
+    transform: translateY(-2px);
+}
+
+.btn-message {
+    background: white;
+    color: #FFA726;
+    border: 2px solid #FFA726;
+}
+
+.btn-message:hover {
+    background: #FFF3E0;
+}
+
+/* ================ Empty State ================ */
+.empty-state {
+    text-align: center;
+    padding: 60px 40px;
+}
+
+.empty-icon {
+    margin-bottom: 30px;
+    opacity: 0.5;
+}
+
+.empty-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 12px;
+    font-family: 'Gotham', sans-serif;
+}
+
+.empty-desc {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 30px;
+    max-width: 450px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+}
+
+.btn-primary-large {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 32px;
+    background: linear-gradient(135deg, #FFA726 0%, #FF9800 100%);
+    color: white;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 167, 38, 0.3);
+}
+
+.btn-primary-large:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255, 167, 38, 0.4);
+}
+
+/* ================ Responsive Design ================ */
+
+@media (max-width: 1200px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .quick-actions-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .sitters-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 30px 25px;
+    }
+
+    .welcome-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+        padding: 25px;
+    }
+
+    .welcome-title {
+        font-size: 1.8rem;
+    }
+
+    .welcome-date {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .stat-card {
+        padding: 20px;
+    }
+
+    .quick-actions-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .sitters-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .booking-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .booking-price {
+        text-align: left;
+        width: 100%;
+    }
+
+    .booking-actions {
+        flex-direction: column;
+    }
+
+    .sitter-card-footer {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-container {
+        padding: 20px 20px;
+    }
+
+    .welcome-section {
+        padding: 20px;
+    }
+
+    .welcome-title {
+        font-size: 1.5rem;
+    }
+
+    .welcome-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+    }
+
+    .stat-value {
+        font-size: 1.8rem;
+    }
+
+    .action-title {
+        font-size: 1rem;
+    }
+
+    .empty-title {
+        font-size: 1.2rem;
+    }
+
+    .empty-desc {
+        font-size: 0.9rem;
+    }
+
+    .sitter-card-header {
+        height: 180px;
+    }
+
+    .sitter-card-avatar {
+        width: 100px;
+        height: 100px;
+    }
+}

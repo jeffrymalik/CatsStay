@@ -576,7 +576,6 @@
   background: #FFF;
   border-top: 1px solid #F0F0F0;
   padding: 30px 50px;
-  margin-top: 50px;
 }
 
 .footer-container {
@@ -771,5 +770,100 @@
 
   .footer-right {
     gap: 12px;
+  }
+}
+
+/* ================ Messages Icon Button ================ */
+
+/* Messages Button Styling */
+.messages-btn {
+  text-decoration: none;
+  color: #333;
+}
+
+.messages-btn:hover svg {
+  color: #FFA726;
+}
+
+/* Make messages button active state */
+.messages-btn.active {
+  background: #FFF3E0;
+  border-color: #FFA726;
+}
+
+.messages-btn.active svg {
+  color: #FFA726;
+}
+
+/* Message Badge (berbeda warna dari notification) */
+.message-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #4CAF50; /* Hijau untuk message */
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+}
+
+/* Mobile Badge */
+.mobile-badge {
+  display: inline-block;
+  background: #4CAF50;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 8px;
+  min-width: 20px;
+  text-align: center;
+}
+
+/* Hover effect untuk messages button */
+.messages-btn:hover {
+  background: #F5F5F5;
+  border-color: #FFA726;
+}
+
+.messages-btn:hover .message-badge {
+  background: #45a049;
+  transform: scale(1.1);
+}
+
+/* Active state saat di halaman messages */
+.nav-menu a[href*="messages"].active ~ .nav-buttons .messages-btn,
+body.messages-page .messages-btn {
+  background: #FFF3E0;
+  border-color: #FFA726;
+}
+
+body.messages-page .messages-btn svg {
+  color: #FFA726;
+}
+
+/* Animation untuk badge (optional) */
+@keyframes badgePulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+}
+
+.message-badge,
+.notification-badge {
+  animation: badgePulse 2s ease-in-out infinite;
+}
+
+/* Responsive - Hide on mobile (sudah ada di mobile menu) */
+@media (max-width: 768px) {
+  .messages-btn {
+    display: none;
   }
 }

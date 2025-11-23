@@ -7,15 +7,23 @@
     @auth
         {{-- NAVBAR UNTUK USER YANG SUDAH LOGIN --}}
         <ul class="nav-menu" id="navMenu">
-            <li><a href="{{ url('/') }}" class="{{ Request::is('/') ? 'active' : '' }}">Home</a></li>
             <li><a href="{{ url('/dashboard') }}" class="{{ Request::is('dashboard') ? 'active' : '' }}">Dashboard</a></li>
-            <li><a href="{{ url('/my-bookings') }}" class="{{ Request::is('my-bookings') ? 'active' : '' }}">My Bookings</a></li>
+            <li><a href="{{ url('/find-sitter') }}" class="{{ Request::is('find-sitter') ? 'active' : '' }}">Find Sitter</a></li>
+            <li><a href="{{ url('/my-request') }}" class="{{ Request::is('my-request') ? 'active' : '' }}">My Request</a></li>
             <li><a href="{{ url('/my-cats') }}" class="{{ Request::is('my-cats') ? 'active' : '' }}">My Cats</a></li>
         </ul>
 
         <div class="nav-buttons" id="navButtons">
+            {{-- Messages Icon Button
+            <a href="{{ url('/messages') }}" class="nav-icon-btn messages-btn" id="messagesBtn" title="Messages">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="message-badge">5</span>
+            </a> --}}
+
             {{-- Notification Bell --}}
-            <button class="nav-icon-btn notification-btn" id="notificationBtn">
+            <button class="nav-icon-btn notification-btn" id="notificationBtn" title="Notifications">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -42,7 +50,7 @@
                     <div class="dropdown-header">
                         <p class="dropdown-name">{{ Auth::user()->name }}</p>
                         <p class="dropdown-email">{{ Auth::user()->email }}</p>
-                        <span class="dropdown-role">{{ ucfirst(Auth::user()->role) }}</span>
+                        <span class="dropdown-role">{{ ucfirst(str_replace('_', ' ', Auth::user()->role)) }}</span>
                     </div>
                     <div class="dropdown-divider"></div>
                     <a href="{{ url('/profile') }}" class="dropdown-item">
@@ -103,9 +111,13 @@
       @auth
         {{-- MOBILE MENU UNTUK USER YANG SUDAH LOGIN --}}
         <ul class="mobile-nav-menu">
-            <li><a href="{{ url('/') }}" class="{{ Request::is('/') ? 'active' : '' }}">Home</a></li>
             <li><a href="{{ url('/dashboard') }}" class="{{ Request::is('dashboard') ? 'active' : '' }}">Dashboard</a></li>
-            <li><a href="{{ url('/my-bookings') }}" class="{{ Request::is('my-bookings') ? 'active' : '' }}">My Bookings</a></li>
+            <li><a href="{{ url('/find-sitter') }}" class="{{ Request::is('find-sitter') ? 'active' : '' }}">Find Sitter</a></li>
+            <li><a href="{{ url('/messages') }}" class="{{ Request::is('messages') ? 'active' : '' }}">
+                Messages 
+                <span class="mobile-badge">5</span>
+            </a></li>
+            <li><a href="{{ url('/my-request') }}" class="{{ Request::is('my-request') ? 'active' : '' }}">My Request</a></li>
             <li><a href="{{ url('/my-cats') }}" class="{{ Request::is('my-cats') ? 'active' : '' }}">My Cats</a></li>
         </ul>
         
@@ -113,7 +125,7 @@
             <div class="mobile-user-info">
                 <p class="mobile-user-name">{{ Auth::user()->name }}</p>
                 <p class="mobile-user-email">{{ Auth::user()->email }}</p>
-                <span class="mobile-user-role">{{ ucfirst(Auth::user()->role) }}</span>
+                <span class="mobile-user-role">{{ ucfirst(str_replace('_', ' ', Auth::user()->role)) }}</span>
             </div>
             <a href="{{ url('/profile') }}"><button class="nav-btn btn-profile">My Profile</button></a>
             <a href="{{ url('/settings') }}"><button class="nav-btn btn-settings">Settings</button></a>
