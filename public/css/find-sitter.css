@@ -839,3 +839,724 @@
         font-size: 1.4rem;
     }
 }
+/* ================ UPDATED STYLES FOR OPTION B ================ */
+
+/* Header Section - Centered */
+.header-section {
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2D3748;
+    margin-bottom: 12px;
+    font-family: 'Gotham', sans-serif;
+}
+
+.page-subtitle {
+    font-size: 1.1rem;
+    color: #718096;
+    font-weight: 400;
+    font-family: 'Gotham', sans-serif;
+}
+
+/* ================ Service Filter Badge (Conditional) ================ */
+.active-filter-banner {
+    background: linear-gradient(135deg, #FFA726 0%, #FF9800 100%);
+    border-radius: 12px;
+    padding: 16px 24px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(255, 167, 38, 0.2);
+}
+
+.filter-badge-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.filter-service-icon {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.filter-service-name {
+    font-family: 'Gotham', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: white;
+}
+
+.filter-divider {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.2rem;
+}
+
+.filter-count {
+    font-family: 'Gotham', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.btn-clear-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid white;
+    border-radius: 20px;
+    color: white;
+    font-family: 'Gotham', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-clear-filter:hover {
+    background: white;
+    color: #FF9800;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-clear-filter svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* ================ Search & Filter Wrapper ================ */
+.search-filter-wrapper {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    align-items: center;
+}
+
+/* Large Search Bar */
+.search-bar-large {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 16px 24px;
+    background: white;
+    border-radius: 50px;
+    border: 2px solid #E2E8F0;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.search-bar-large:focus-within {
+    border-color: #FFA726;
+    box-shadow: 0 4px 16px rgba(255, 167, 38, 0.15);
+}
+
+.search-icon {
+    flex-shrink: 0;
+}
+
+.search-input-large {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    color: #2D3748;
+    font-family: 'Gotham', sans-serif;
+    background: transparent;
+}
+
+.search-input-large::placeholder {
+    color: #A0AEC0;
+}
+
+/* Orange Filters Button */
+.filter-btn-orange {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 30px;
+    background: white;
+    border: 2px solid #FFA726;
+    border-radius: 50px;
+    color: #FFA726;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Gotham', sans-serif;
+    position: relative;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.filter-btn-orange:hover {
+    background: #FFF3E0;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 167, 38, 0.2);
+}
+
+.filter-badge-count {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #f44336;
+    color: white;
+    border-radius: 12px;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    min-width: 20px;
+    text-align: center;
+    border: 2px solid white;
+}
+
+/* ================ Results Header ================ */
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #E2E8F0;
+}
+
+.results-count {
+    font-family: 'Gotham', sans-serif;
+    font-size: 1rem;
+    color: #4A5568;
+    margin: 0;
+}
+
+.results-count strong {
+    color: #FFA726;
+    font-weight: 700;
+}
+
+.sort-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sort-label {
+    font-family: 'Gotham', sans-serif;
+    font-size: 0.95rem;
+    color: #4A5568;
+    font-weight: 500;
+}
+
+.sort-select {
+    padding: 10px 16px;
+    border: 2px solid #E2E8F0;
+    border-radius: 8px;
+    font-family: 'Gotham', sans-serif;
+    font-size: 0.95rem;
+    color: #2D3748;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.sort-select:hover {
+    border-color: #FFA726;
+}
+
+.sort-select:focus {
+    border-color: #FFA726;
+    box-shadow: 0 0 0 3px rgba(255, 167, 38, 0.1);
+}
+
+/* ================ Service Tags ================ */
+.sitter-services-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.service-tag {
+    display: inline-block;
+    padding: 6px 12px;
+    background: #F7FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 20px;
+    font-family: 'Gotham', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #718096;
+    transition: all 0.3s ease;
+}
+
+.service-tag.active {
+    background: #FFF3E0;
+    border-color: #FFA726;
+    color: #FF9800;
+    font-weight: 600;
+}
+
+/* ================ Empty State ================ */
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.empty-icon svg {
+    width: 120px;
+    height: 120px;
+}
+
+.empty-title {
+    font-family: 'Gotham', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #2D3748;
+    margin: 20px 0 12px;
+}
+
+.empty-desc {
+    font-family: 'Gotham', sans-serif;
+    font-size: 1rem;
+    color: #718096;
+    margin: 0;
+}
+
+.empty-link {
+    color: #FFA726;
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 2px solid #FFA726;
+    transition: all 0.3s ease;
+}
+
+.empty-link:hover {
+    color: #FF9800;
+    border-bottom-color: #FF9800;
+}
+
+/* ================ Responsive ================ */
+@media (max-width: 768px) {
+    .page-title {
+        font-size: 2rem;
+    }
+
+    .page-subtitle {
+        font-size: 1rem;
+    }
+
+    .search-filter-wrapper {
+        flex-direction: column;
+    }
+
+    .search-bar-large {
+        width: 100%;
+    }
+
+    .filter-btn-orange {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .active-filter-banner {
+        padding: 12px 16px;
+    }
+
+    .filter-badge-content {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .btn-clear-filter {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .results-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .sort-container {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-title {
+        font-size: 1.75rem;
+    }
+
+    .search-bar-large {
+        padding: 12px 18px;
+    }
+
+    .filter-btn-orange {
+        padding: 12px 24px;
+        font-size: 0.9rem;
+    }
+
+    .service-tag {
+        font-size: 0.7rem;
+        padding: 5px 10px;
+    }
+}
+
+/* ================ RESPONSIVE FILTER PANEL FIX ================ */
+
+/* Tablet & Mobile - Under 1024px */
+@media (max-width: 1024px) {
+    .filter-content {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 25px 20px;
+    }
+}
+
+/* Mobile - Under 768px */
+@media (max-width: 768px) {
+    /* Filter Panel - Full Width on Mobile */
+    .filter-panel {
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+    .filter-panel.active {
+        max-height: none; /* Allow full expansion */
+    }
+
+    /* Filter Content - Stack Vertically */
+    .filter-content {
+        grid-template-columns: 1fr; /* Single column on mobile */
+        gap: 20px;
+    }
+
+    /* Filter Panel Header */
+    .filter-panel-header {
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+    }
+
+    .filter-title {
+        font-size: 1.2rem;
+    }
+
+    .close-filter-btn {
+        width: 32px;
+        height: 32px;
+    }
+
+    /* Filter Groups */
+    .filter-group {
+        width: 100%;
+    }
+
+    .filter-label {
+        font-size: 0.9rem;
+    }
+
+    /* Service Type Checkboxes - Full Width */
+    .filter-group:first-child .checkbox-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .filter-group:first-child .checkbox-label {
+        width: 100%;
+        padding: 12px 16px;
+        justify-content: flex-start;
+    }
+
+    /* Location Select - Full Width */
+    .filter-select {
+        width: 100%;
+        padding: 12px 16px;
+        font-size: 0.9rem;
+    }
+
+    /* Price Range - Stack or Keep Side by Side */
+    .price-inputs {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .price-inputs .filter-input {
+        flex: 1;
+        padding: 12px 14px;
+        font-size: 0.9rem;
+    }
+
+    /* Rating Filter - Vertical Stack */
+    .rating-filter {
+        gap: 10px;
+    }
+
+    .rating-option label {
+        width: 100%;
+        padding: 12px 16px;
+        font-size: 0.85rem;
+    }
+
+    /* Experience Checkboxes - Full Width */
+    .checkbox-group {
+        gap: 10px;
+    }
+
+    .checkbox-label {
+        width: 100%;
+        padding: 12px 16px;
+        font-size: 0.9rem;
+    }
+
+    /* Verified Only - Full Width */
+    .checkbox-label-single {
+        width: 100%;
+        padding: 12px 16px;
+    }
+
+    /* Filter Actions - Stack Vertically */
+    .filter-actions {
+        flex-direction: column;
+        gap: 12px;
+        padding-top: 20px;
+        margin-top: 5px;
+    }
+
+    .btn-reset-filter,
+    .btn-apply-filter {
+        width: 100%;
+        padding: 14px 24px;
+        font-size: 0.95rem;
+    }
+}
+
+/* Small Mobile - Under 480px */
+@media (max-width: 480px) {
+    .filter-panel {
+        padding: 16px;
+        border-radius: 10px;
+    }
+
+    .filter-panel-header {
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+    }
+
+    .filter-title {
+        font-size: 1.1rem;
+    }
+
+    .close-filter-btn {
+        width: 30px;
+        height: 30px;
+    }
+
+    .filter-content {
+        gap: 16px;
+    }
+
+    .filter-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    /* Reduce padding on mobile */
+    .filter-select,
+    .filter-input,
+    .checkbox-label,
+    .rating-option label {
+        padding: 10px 14px;
+        font-size: 0.85rem;
+    }
+
+    .filter-group:first-child .checkbox-label {
+        padding: 10px 14px;
+    }
+
+    /* Price inputs - smaller on very small screens */
+    .price-inputs .filter-input {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+    }
+
+    .price-separator {
+        font-size: 0.9rem;
+    }
+
+    /* Stars smaller */
+    .stars {
+        font-size: 0.8rem;
+    }
+
+    /* Filter actions - more compact */
+    .filter-actions {
+        gap: 10px;
+        padding-top: 16px;
+    }
+
+    .btn-reset-filter,
+    .btn-apply-filter {
+        padding: 12px 20px;
+        font-size: 0.9rem;
+        border-radius: 20px;
+    }
+}
+
+/* ================ ADDITIONAL TOUCH-FRIENDLY IMPROVEMENTS ================ */
+
+/* Increase touch target size on mobile */
+@media (max-width: 768px) {
+    /* Checkbox & Radio - Larger touch area */
+    .checkbox-label input[type="checkbox"],
+    .rating-option input[type="radio"] {
+        width: 22px;
+        height: 22px;
+        cursor: pointer;
+    }
+
+    /* Filter button - easier to tap */
+    .filter-btn-orange {
+        padding: 14px 28px;
+        font-size: 0.95rem;
+        min-height: 48px; /* Accessibility guideline */
+    }
+
+    /* Close button - larger touch area */
+    .close-filter-btn {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    /* Apply & Reset buttons - min height for touch */
+    .btn-reset-filter,
+    .btn-apply-filter {
+        min-height: 48px;
+    }
+}
+
+/* ================ SMOOTH TRANSITIONS ================ */
+@media (max-width: 768px) {
+    .filter-panel {
+        transition: max-height 0.4s ease, opacity 0.4s ease, padding 0.3s ease;
+    }
+
+    .filter-panel.active {
+        animation: slideDown 0.4s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+}
+
+/* ================ PREVENT HORIZONTAL SCROLL ================ */
+@media (max-width: 768px) {
+    .filter-panel,
+    .filter-content,
+    .filter-group,
+    .checkbox-group,
+    .rating-filter {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    /* Ensure inputs don't overflow */
+    .filter-select,
+    .filter-input,
+    .search-input-large {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+/* ================ ACCESSIBILITY IMPROVEMENTS ================ */
+@media (max-width: 768px) {
+    /* Focus states more visible on mobile */
+    .filter-select:focus,
+    .filter-input:focus {
+        border-color: #FFA726;
+        box-shadow: 0 0 0 3px rgba(255, 167, 38, 0.2);
+        outline: none;
+    }
+
+    /* Checkbox/Radio focus */
+    .checkbox-label input[type="checkbox"]:focus,
+    .rating-option input[type="radio"]:focus {
+        outline: 2px solid #FFA726;
+        outline-offset: 2px;
+    }
+
+    /* Button focus */
+    .btn-reset-filter:focus,
+    .btn-apply-filter:focus,
+    .filter-btn-orange:focus {
+        outline: 2px solid #FFA726;
+        outline-offset: 2px;
+    }
+}
+
+/* ================ OPTIMIZE FOR LANDSCAPE MOBILE ================ */
+@media (max-width: 768px) and (orientation: landscape) {
+    .filter-content {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px 15px;
+    }
+
+    .filter-panel.active {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    /* Scrollbar styling for landscape */
+    .filter-panel.active::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .filter-panel.active::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .filter-panel.active::-webkit-scrollbar-thumb {
+        background: #FFA726;
+        border-radius: 10px;
+    }
+}
+
+/* ================ VERY SMALL DEVICES (320px) ================ */
+@media (max-width: 360px) {
+    .filter-panel {
+        padding: 12px;
+    }
+
+    .filter-title {
+        font-size: 1rem;
+    }
+
+    .filter-content {
+        gap: 14px;
+    }
+
+    .btn-reset-filter,
+    .btn-apply-filter {
+        padding: 11px 18px;
+        font-size: 0.85rem;
+    }
+}

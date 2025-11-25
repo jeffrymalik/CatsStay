@@ -106,7 +106,8 @@
                 <p class="action-desc">Browse trusted cat sitters</p>
             </a>
 
-            <a href="{{ url('/my-request') }}" class="action-card">
+            {{-- UPDATED: New Booking now redirects to Select Service --}}
+            <a href="{{ url('/select-service') }}" class="action-card">
                 <div class="action-icon green">
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <rect x="3" y="4" width="18" height="18" rx="2" stroke="white" stroke-width="2"/>
@@ -291,7 +292,7 @@
                     </div>
                     <div class="sitter-card-footer">
                         <a href="{{ url('/sitter/' . $sitter->id) }}" class="btn-view-profile">View Profile</a>
-                        <a href="{{ url('/my-request?sitter=' . $sitter->id) }}" class="btn-book-now">Book Now</a>
+                        <a href="{{ url('/select-service?sitter=' . $sitter->id) }}" class="btn-book-now">Book Now</a>
                     </div>
                 </div>
                 @endforeach

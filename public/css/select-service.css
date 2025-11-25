@@ -1,0 +1,355 @@
+/* ========================================
+   SELECT SERVICE PAGE STYLES
+   ======================================== */
+
+.select-service-container {
+    min-height: 100vh;
+    background-color: #f5f5f5;
+    padding: 2rem 0;
+}
+
+.select-service-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+/* ========================================
+   HEADER SECTION
+   ======================================== */
+
+.select-service-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.select-service-title {
+    font-family: 'Gotham', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.select-service-subtitle {
+    font-family: 'Gotham', sans-serif;
+    font-size: 1.125rem;
+    color: #666;
+}
+
+/* ========================================
+   SERVICE CARDS GRID
+   ======================================== */
+
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+@media (max-width: 768px) {
+    .services-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ========================================
+   INDIVIDUAL SERVICE CARD
+   ======================================== */
+
+.service-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.service-card:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    border-color: #FFA726;
+    transform: translateY(-4px);
+}
+
+/* Card Header (Orange gradient) */
+.service-card-header {
+    background: linear-gradient(135deg, #FFA726 0%, #FF9800 100%);
+    padding: 2.5rem 2rem;
+    text-align: center;
+}
+
+.service-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.service-name {
+    font-family: 'Gotham', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 1rem;
+}
+
+.service-price-box {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    display: inline-block;
+}
+
+.service-price-note {
+    font-family: 'Gotham', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: white;
+    margin: 0 0 0.25rem 0;
+}
+
+.service-price-subtext {
+    font-family: 'Gotham', sans-serif;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
+    font-weight: 400;
+}
+
+/* Card Body */
+.service-card-body {
+    padding: 2rem;
+}
+
+.service-description {
+    font-family: 'Gotham', sans-serif;
+    font-size: 0.9375rem;
+    color: #666;
+    line-height: 1.6;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+/* Features Section */
+.service-features-title {
+    font-family: 'Gotham', sans-serif;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.service-features-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem 0;
+}
+
+.service-feature-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+}
+
+.service-feature-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 0.75rem;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.service-feature-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.service-feature-text {
+    font-family: 'Gotham', sans-serif;
+    font-size: 0.875rem;
+    color: #555;
+    line-height: 1.5;
+}
+
+/* Select Button */
+.btn-select-service {
+    width: 100%;
+    background: #FFA726;
+    color: white;
+    font-family: 'Gotham', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 1rem 1.5rem;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(255, 167, 38, 0.3);
+}
+
+.btn-select-service:hover {
+    background: #FF9800;
+    box-shadow: 0 6px 12px rgba(255, 152, 0, 0.4);
+    transform: translateY(-2px);
+}
+
+.btn-select-service:active {
+    transform: translateY(0);
+}
+
+/* ========================================
+   INFO SECTION
+   ======================================== */
+
+.select-service-info {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    margin: 0 auto 2rem auto;
+}
+
+.info-content {
+    display: flex;
+    align-items: flex-start;
+}
+
+.info-icon {
+    flex-shrink: 0;
+    margin-right: 1.5rem;
+}
+
+.info-icon svg {
+    width: 32px;
+    height: 32px;
+    color: #FFA726;
+}
+
+.info-text-wrapper {
+    flex: 1;
+}
+
+.info-title {
+    font-family: 'Gotham', sans-serif;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.info-description {
+    font-family: 'Gotham', sans-serif;
+    font-size: 0.9375rem;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.info-link {
+    display: inline-flex;
+    align-items: center;
+    color: #FFA726;
+    font-family: 'Gotham', sans-serif;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.info-link:hover {
+    color: #FF9800;
+}
+
+.info-link svg {
+    margin-left: 0.5rem;
+    width: 20px;
+    height: 20px;
+}
+
+/* ========================================
+   BACK LINK
+   ======================================== */
+
+.back-to-dashboard {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    color: #666;
+    font-family: 'Gotham', sans-serif;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.back-link:hover {
+    color: #333;
+}
+
+.back-link svg {
+    margin-right: 0.5rem;
+    width: 20px;
+    height: 20px;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 768px) {
+    .select-service-title {
+        font-size: 2rem;
+    }
+
+    .select-service-subtitle {
+        font-size: 1rem;
+    }
+
+    .service-card-header {
+        padding: 2rem 1.5rem;
+    }
+
+    .service-name {
+        font-size: 1.5rem;
+    }
+
+    .service-price {
+        font-size: 1.75rem;
+    }
+
+    .service-card-body {
+        padding: 1.5rem;
+    }
+
+    .select-service-info {
+        padding: 1.5rem;
+    }
+
+    .info-content {
+        flex-direction: column;
+    }
+
+    .info-icon {
+        margin-bottom: 1rem;
+        margin-right: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .select-service-content {
+        padding: 0 1rem;
+    }
+
+    .services-grid {
+        gap: 1.5rem;
+    }
+
+    .service-icon {
+        font-size: 3rem;
+    }
+}

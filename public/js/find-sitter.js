@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const filterPanel = document.getElementById('filterPanel');
     const closeFilterBtn = document.getElementById('closeFilterBtn');
     const applyFilterBtn = document.getElementById('applyFilterBtn');
-    const clearFilterBtn = document.getElementById('clearFilterBtn');
+    const resetFilterBtn = document.getElementById('resetFilterBtn');
     const filterBadge = document.getElementById('filterBadge');
     
     const searchInput = document.getElementById('searchInput');
@@ -18,11 +18,27 @@ document.addEventListener('DOMContentLoaded', function() {
     const serviceCheckboxes = document.querySelectorAll('.service-checkbox');
     const ratingRadios = document.querySelectorAll('input[name="rating"]');
     
-    const sortBy = document.getElementById('sortBy');
+    const sortSelect = document.getElementById('sortSelect');
     const sittersGrid = document.getElementById('sittersGrid');
-    const resultCount = document.getElementById('resultCount');
+    const resultsCount = document.getElementById('resultsCount');
     
     const favoriteBtns = document.querySelectorAll('.favorite-btn');
+
+    // ================ Check URL for Service Filter ================
+    function getServiceFromURL() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('service');
+    }
+
+    // Auto-check service checkbox if coming from Select Service
+    const serviceFromURL = getServiceFromURL();
+    if (serviceFromURL) {
+        serviceCheckboxes.forEach(checkbox => {
+            if (checkbox.value === serviceFromURL) {
+                checkbox.checked = true;
+            }
+        });
+    }
 
     // ================ Filter Panel Toggle ================
     if (filterBtn && filterPanel) {
@@ -72,11 +88,23 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // ================ Update Results Count ================
+    function updateResultsCount() {
+        const visibleCards = document.querySelectorAll('.sitter-card:not([style*="display: none"])');
+        if (resultsCount) {
+            const countElement = resultsCount.querySelector('strong');
+            if (countElement) {
+                countElement.textContent = visibleCards.length;
+            }
+        }
+    }
+
     // ================ Apply Filters ================
     if (applyFilterBtn) {
         applyFilterBtn.addEventListener('click', function() {
             applyFilters();
             updateFilterBadge();
+            updateResultsCount();
             filterPanel.classList.remove('active');
         });
     }
@@ -171,15 +199,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Update result count
-        if (resultCount) {
-            resultCount.textContent = visibleCount;
-        }
+        return visibleCount;
     }
 
-    // ================ Clear All Filters ================
-    if (clearFilterBtn) {
-        clearFilterBtn.addEventListener('click', function() {
+    // ================ Reset All Filters ================
+    if (resetFilterBtn) {
+        resetFilterBtn.addEventListener('click', function() {
             // Reset all filter inputs
             if (locationFilter) locationFilter.value = '';
             if (minPrice) minPrice.value = '';
@@ -204,12 +229,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 card.style.display = 'block';
             });
 
-            // Update count
-            if (resultCount) {
-                resultCount.textContent = cards.length;
-            }
-
-            // Update badge
+            // Update counts
+            updateResultsCount();
             updateFilterBadge();
 
             // Close filter panel
@@ -227,13 +248,18 @@ document.addEventListener('DOMContentLoaded', function() {
             let visibleCount = 0;
 
             cards.forEach(card => {
-                const name = card.querySelector('.sitter-card-name').textContent.toLowerCase();
-                const location = card.querySelector('.sitter-card-location').textContent.toLowerCase();
-                const bio = card.querySelector('.sitter-bio').textContent.toLowerCase();
+                const name = card.querySelector('.sitter-card-name')?.textContent.toLowerCase() || '';
+                const location = card.querySelector('.sitter-card-location')?.textContent.toLowerCase() || '';
+                const bio = card.querySelector('.sitter-bio')?.textContent.toLowerCase() || '';
 
-                if (name.includes(searchTerm) || location.includes(searchTerm) || bio.includes(searchTerm)) {
-                    // Only show if not filtered out
-                    if (card.style.display !== 'none' || searchTerm === '') {
+                const matchesSearch = name.includes(searchTerm) || 
+                                    location.includes(searchTerm) || 
+                                    bio.includes(searchTerm);
+
+                if (matchesSearch || searchTerm === '') {
+                    // Check if not already hidden by filters
+                    const isHiddenByFilter = card.style.display === 'none' && searchTerm === '';
+                    if (!isHiddenByFilter) {
                         card.style.display = 'block';
                         visibleCount++;
                     }
@@ -242,22 +268,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
 
-            if (resultCount) {
-                resultCount.textContent = visibleCount;
-            }
+            updateResultsCount();
         });
     }
 
     // ================ Sort Functionality ================
-    if (sortBy && sittersGrid) {
-        sortBy.addEventListener('change', function() {
+    if (sortSelect && sittersGrid) {
+        sortSelect.addEventListener('change', function() {
             const sortValue = this.value;
             const cards = Array.from(document.querySelectorAll('.sitter-card'));
 
             cards.sort((a, b) => {
                 switch(sortValue) {
-                    case 'rating':
+                    case 'rating-high':
                         return parseFloat(b.getAttribute('data-rating')) - parseFloat(a.getAttribute('data-rating'));
+                    
+                    case 'rating-low':
+                        return parseFloat(a.getAttribute('data-rating')) - parseFloat(b.getAttribute('data-rating'));
                     
                     case 'price-low':
                         return parseInt(a.getAttribute('data-price')) - parseInt(b.getAttribute('data-price'));
@@ -267,11 +294,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     case 'experience':
                         return parseInt(b.getAttribute('data-experience')) - parseInt(a.getAttribute('data-experience'));
-                    
-                    case 'reviews':
-                        const reviewsA = parseInt(a.querySelector('.rating-text').textContent.match(/\((\d+)\)/)[1]);
-                        const reviewsB = parseInt(b.querySelector('.rating-text').textContent.match(/\((\d+)\)/)[1]);
-                        return reviewsB - reviewsA;
                     
                     default: // recommended
                         return 0;
@@ -331,6 +353,7 @@ document.addEventListener('DOMContentLoaded', function() {
             box-shadow: 0 6px 20px rgba(255, 167, 38, 0.3);
             z-index: 10000;
             animation: slideIn 0.3s ease;
+            font-family: 'Gotham', sans-serif;
         `;
 
         document.body.appendChild(notification);
@@ -370,10 +393,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     opacity: 0;
                 }
             }
+
+            .favorite-btn.active svg path {
+                fill: #f44336;
+                stroke: #f44336;
+            }
         `;
         document.head.appendChild(style);
     }
 
     // ================ Initial Setup ================
     updateFilterBadge();
+    updateResultsCount();
 });

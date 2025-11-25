@@ -499,7 +499,8 @@
     transform: rotate(-45deg) translate(7px, -7px);
 }
 
-/* Mobile Menu */
+
+/* Mobile Menu - UPDATED WITH SCROLL FIX */
 .mobile-menu {
     display: none;
     position: fixed;
@@ -512,6 +513,7 @@
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
+    overflow-y: auto;
 }
 
 .mobile-menu.active {
@@ -526,15 +528,35 @@
     right: 0;
     background: white;
     padding: 20px;
+    padding-bottom: 40px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     transform: translateY(-100%);
     transition: transform 0.3s ease;
+    max-height: calc(100vh - 76px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .mobile-menu.active .mobile-menu-content {
     transform: translateY(0);
 }
 
+.mobile-menu-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.mobile-menu-content::-webkit-scrollbar-track {
+    background: #F5F5F5;
+}
+
+.mobile-menu-content::-webkit-scrollbar-thumb {
+    background: #CCCCCC;
+    border-radius: 3px;
+}
+
+.mobile-menu-content::-webkit-scrollbar-thumb:hover {
+    background: #999999;
+}
 .mobile-nav-menu {
     list-style: none;
     display: flex;
@@ -666,7 +688,7 @@
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 860px) {
     .navbar {
         padding: 15px 25px;
     }
@@ -866,4 +888,206 @@ body.messages-page .messages-btn svg {
   .messages-btn {
     display: none;
   }
+}
+
+/* ===============================================
+   DROPDOWN NOTIFICATIONS & MESSAGES STYLING
+   (Add this to your existing nav.css/jepi.css)
+   =============================================== */
+
+/* Dropdown Notification/Message Items */
+.dropdown-notif-item {
+    position: relative;
+    padding-right: 50px !important; /* Space for badge */
+}
+
+.dropdown-notif-item:hover {
+    background: #FFF8F0 !important;
+}
+
+/* Dropdown Badge Styling */
+.dropdown-badge {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    min-width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f44336;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 12px;
+    padding: 0 6px;
+}
+
+/* Message Badge in Dropdown (Green) */
+.message-badge-dropdown {
+    background: #4CAF50 !important;
+}
+
+/* Animation for badges */
+@keyframes badgePulse {
+  0%, 100% {
+    transform: translateY(-50%) scale(1);
+  }
+  50% {
+    transform: translateY(-50%) scale(1.1);
+  }
+}
+
+.dropdown-badge {
+    animation: badgePulse 2s ease-in-out infinite;
+}
+
+/* Mobile Badge Variations */
+.notif-badge-mobile {
+    background: #f44336 !important; /* Red for notifications */
+}
+
+.mobile-badge {
+    background: #4CAF50; /* Green for messages */
+}
+
+/* Hover Effects for Notif/Message Items */
+.dropdown-notif-item svg {
+    transition: all 0.3s ease;
+}
+
+.dropdown-notif-item:hover svg {
+    color: #FFA726;
+    transform: scale(1.1);
+}
+
+/* Active State (when on notifications/messages page) */
+.dropdown-notif-item.active {
+    background: #FFF3E0;
+    border-left: 3px solid #FFA726;
+}
+
+.dropdown-notif-item.active svg {
+    color: #FFA726;
+}
+
+/* Ensure dropdown items flex properly */
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+}
+
+/* Mobile Menu Badge Positioning */
+.mobile-nav-menu li {
+    position: relative;
+}
+
+.mobile-nav-menu a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Responsive: Hide badge text on very small screens */
+@media (max-width: 320px) {
+    .dropdown-badge {
+        min-width: 20px;
+        height: 20px;
+        font-size: 10px;
+    }
+}
+/* ===============================================
+   DROPDOWN NOTIFICATIONS & MESSAGES STYLING
+   =============================================== */
+
+.dropdown-notif-item {
+    position: relative;
+    padding-right: 50px !important;
+}
+
+.dropdown-notif-item:hover {
+    background: #FFF8F0 !important;
+}
+
+.dropdown-badge {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    min-width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f44336;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 12px;
+    padding: 0 6px;
+}
+
+.message-badge-dropdown {
+    background: #4CAF50 !important;
+}
+
+@keyframes badgePulse {
+  0%, 100% {
+    transform: translateY(-50%) scale(1);
+  }
+  50% {
+    transform: translateY(-50%) scale(1.1);
+  }
+}
+
+.dropdown-badge {
+    animation: badgePulse 2s ease-in-out infinite;
+}
+
+.notif-badge-mobile {
+    background: #f44336 !important;
+}
+
+.mobile-badge {
+    background: #4CAF50;
+    display: inline-block;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 8px;
+    min-width: 20px;
+    text-align: center;
+}
+
+.dropdown-notif-item svg {
+    transition: all 0.3s ease;
+}
+
+.dropdown-notif-item:hover svg {
+    color: #FFA726;
+    transform: scale(1.1);
+}
+
+.dropdown-notif-item.active {
+    background: #FFF3E0;
+    border-left: 3px solid #FFA726;
+}
+
+.dropdown-notif-item.active svg {
+    color: #FFA726;
+}
+
+.mobile-nav-menu li {
+    position: relative;
+}
+
+.mobile-nav-menu a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }

@@ -4,7 +4,7 @@
     <!-- Left Side - Logo -->
     <div class="footer-left">
       <div class="footer-logo">
-        <img src="images/logo.png" alt="CatStay Logo">
+        <img src="{{asset('images/logo.png')}}" alt="CatStay Logo">
         <span>CATS STAY</span>
       </div>
     </div>
