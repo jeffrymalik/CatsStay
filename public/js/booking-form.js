@@ -1,14 +1,17 @@
 // ===================================
-// BOOKING FORM - JavaScript
-// Price Calculator, Date Validation, Form Interactions
+// BOOKING FORM - Complete JavaScript
+// Includes: Service, Cat, Date, Delivery Method, Address, Price Calculator
 // ===================================
 
 // Global variables
 let selectedServicePrice = 0;
 let selectedServiceName = '';
 let isSingleDayService = false;
+let isHomeVisitService = false;
 let durationDays = 0;
 const platformFeePercent = 5;
+const deliveryFee = 50000; // Fixed Rp 50,000
+let selectedDeliveryMethod = 'dropoff';
 
 // ===================================
 // INITIALIZE ON PAGE LOAD
@@ -20,6 +23,8 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeCatTypeToggle();
     initializeCatSelection();
     initializeDatePickers();
+    initializeDeliveryMethod();
+    initializeAddressSelection();
     initializeTextareaCounter();
     initializeFormValidation();
     
@@ -39,6 +44,7 @@ function initializeServiceSelection() {
     serviceRadios.forEach(radio => {
         radio.addEventListener('change', function() {
             updateSelectedService(this);
+            handleHomeVisitService();
             calculateTotal();
         });
     });
@@ -48,6 +54,7 @@ function updateSelectedService(radio) {
     selectedServicePrice = parseInt(radio.dataset.price);
     selectedServiceName = radio.dataset.name;
     isSingleDayService = radio.dataset.singleDay === 'true';
+    isHomeVisitService = radio.dataset.isHomeVisit === 'true';
     
     // Update summary
     document.getElementById('summaryService').textContent = selectedServiceName;
@@ -60,18 +67,12 @@ function updateSelectedService(radio) {
     const durationDisplay = document.querySelector('.duration-display');
     
     if (isSingleDayService) {
-        // Hide end date field for single-day services
         endDateWrapper.style.display = 'none';
         endDateInput.removeAttribute('required');
-        
-        // Change start date label
         startDateLabel.textContent = 'Select Date *';
-        
-        // Set duration to 1 day
         durationDays = 1;
         document.getElementById('summaryDuration').textContent = '1 day';
         
-        // Update duration display text
         const startDate = document.getElementById('startDate').value;
         if (startDate) {
             const date = new Date(startDate);
@@ -80,21 +81,15 @@ function updateSelectedService(radio) {
             durationDisplay.querySelector('span').textContent = 'Please select date';
         }
         
-        // Auto-set end date to match start date (for backend)
         const startDateValue = document.getElementById('startDate').value;
         if (startDateValue) {
             endDateInput.value = startDateValue;
         }
         
     } else {
-        // Show end date field for multi-day services
         endDateWrapper.style.display = 'block';
         endDateInput.setAttribute('required', 'required');
-        
-        // Reset start date label
         startDateLabel.textContent = 'Start Date *';
-        
-        // Recalculate duration if dates are selected
         calculateDuration();
     }
     
@@ -102,7 +97,7 @@ function updateSelectedService(radio) {
 }
 
 // ===================================
-// CAT TYPE TOGGLE (Registered vs New)
+// CAT TYPE TOGGLE
 // ===================================
 function initializeCatTypeToggle() {
     const toggleOptions = document.querySelectorAll('.toggle-option');
@@ -113,16 +108,13 @@ function initializeCatTypeToggle() {
         option.addEventListener('click', function() {
             const target = this.dataset.target;
             
-            // Update active state
             toggleOptions.forEach(opt => opt.classList.remove('active'));
             this.classList.add('active');
             
-            // Toggle sections
             if (target === 'registered') {
                 registeredSection.style.display = 'block';
                 newSection.style.display = 'none';
                 
-                // Clear new cat inputs
                 document.querySelector('input[name="new_cat_name"]').value = '';
                 document.querySelector('input[name="new_cat_breed"]').value = '';
                 document.querySelector('input[name="new_cat_age"]').value = '';
@@ -130,7 +122,6 @@ function initializeCatTypeToggle() {
                 registeredSection.style.display = 'none';
                 newSection.style.display = 'block';
                 
-                // Reset registered cat select
                 document.getElementById('registeredCatSelect').value = '';
                 document.getElementById('catPreview').style.display = 'none';
             }
@@ -139,7 +130,7 @@ function initializeCatTypeToggle() {
 }
 
 // ===================================
-// CAT SELECTION (Show Preview)
+// CAT SELECTION
 // ===================================
 function initializeCatSelection() {
     const catSelect = document.getElementById('registeredCatSelect');
@@ -150,23 +141,17 @@ function initializeCatSelection() {
             const catPreview = document.getElementById('catPreview');
             
             if (this.value) {
-                // Get cat data from option
                 const catPhoto = selectedOption.dataset.photo;
                 const catText = selectedOption.textContent;
-                
-                // Parse cat name and details
                 const catName = catText.split(' (')[0];
                 const catDetails = catText.match(/\(([^)]+)\)/)[1];
                 
-                // Update preview
                 document.getElementById('catPreviewImg').src = catPhoto;
                 document.getElementById('catPreviewName').textContent = catName;
                 document.getElementById('catPreviewDetails').textContent = catDetails;
                 
-                // Show preview
                 catPreview.style.display = 'flex';
             } else {
-                // Hide preview if no selection
                 catPreview.style.display = 'none';
             }
         });
@@ -174,35 +159,29 @@ function initializeCatSelection() {
 }
 
 // ===================================
-// DATE PICKERS & DURATION CALCULATOR
+// DATE PICKERS & DURATION
 // ===================================
 function initializeDatePickers() {
     const startDateInput = document.getElementById('startDate');
     const endDateInput = document.getElementById('endDate');
     
-    // Set minimum date to today
     const today = new Date().toISOString().split('T')[0];
     startDateInput.setAttribute('min', today);
     endDateInput.setAttribute('min', today);
     
-    // Listen to date changes
     startDateInput.addEventListener('change', function() {
         if (isSingleDayService) {
-            // For single-day service, auto-set end date to match start date
             endDateInput.value = this.value;
             durationDays = 1;
             
-            // Update duration display
             const date = new Date(this.value);
             document.getElementById('durationText').innerHTML = `<strong>1 day</strong> (${formatDate(date)})`;
             document.getElementById('summaryDuration').textContent = '1 day';
             
             calculateTotal();
         } else {
-            // For multi-day service, update end date minimum to start date
             endDateInput.setAttribute('min', this.value);
             
-            // If end date is before start date, reset it
             if (endDateInput.value && endDateInput.value < this.value) {
                 endDateInput.value = '';
             }
@@ -219,10 +198,7 @@ function initializeDatePickers() {
 }
 
 function calculateDuration() {
-    // Skip calculation for single-day services
-    if (isSingleDayService) {
-        return;
-    }
+    if (isSingleDayService) return;
     
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value;
@@ -230,18 +206,15 @@ function calculateDuration() {
     const summaryDuration = document.getElementById('summaryDuration');
     
     if (startDate && endDate) {
-        // Calculate difference in days
         const start = new Date(startDate);
         const end = new Date(endDate);
         const diffTime = Math.abs(end - start);
-        durationDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both days
+        durationDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
         
-        // Update display
         const durationString = durationDays + (durationDays === 1 ? ' day' : ' days');
         durationText.innerHTML = `<strong>${durationString}</strong> (${formatDate(start)} - ${formatDate(end)})`;
         summaryDuration.textContent = durationString;
         
-        // Recalculate total
         calculateTotal();
     } else {
         durationText.textContent = 'Please select dates';
@@ -252,15 +225,151 @@ function calculateDuration() {
 }
 
 // ===================================
-// PRICE CALCULATOR
+// DELIVERY METHOD
+// ===================================
+function initializeDeliveryMethod() {
+    const deliveryRadios = document.querySelectorAll('input[name="delivery_method"]');
+    const sitterAddressBox = document.getElementById('sitterAddressBox');
+    const userAddressSelection = document.getElementById('userAddressSelection');
+    
+    deliveryRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            selectedDeliveryMethod = this.value;
+            
+            if (this.value === 'dropoff') {
+                if (sitterAddressBox) sitterAddressBox.style.display = 'block';
+                if (userAddressSelection) userAddressSelection.style.display = 'none';
+                
+                const addressSelect = document.getElementById('userAddressSelect');
+                if (addressSelect) addressSelect.removeAttribute('required');
+                
+            } else if (this.value === 'pickup') {
+                if (sitterAddressBox) sitterAddressBox.style.display = 'none';
+                if (userAddressSelection) userAddressSelection.style.display = 'block';
+                
+                const addressSelect = document.getElementById('userAddressSelect');
+                if (addressSelect) addressSelect.setAttribute('required', 'required');
+            }
+            
+            calculateTotal();
+        });
+    });
+    
+    // Check initial service for Home Visit
+    const checkedService = document.querySelector('input[name="service_type"]:checked');
+    if (checkedService) {
+        isHomeVisitService = checkedService.dataset.isHomeVisit === 'true';
+        handleHomeVisitService();
+    }
+}
+
+function handleHomeVisitService() {
+    const dropoffOption = document.getElementById('dropoffOption');
+    const pickupOption = document.getElementById('pickupOption');
+    const homeVisitInfo = document.getElementById('homeVisitInfo');
+    const dropoffRadio = document.querySelector('input[name="delivery_method"][value="dropoff"]');
+    const pickupRadio = document.querySelector('input[name="delivery_method"][value="pickup"]');
+    
+    if (isHomeVisitService) {
+        // Home Visit: Only pickup available
+        if (dropoffOption) {
+            dropoffOption.style.display = 'none';
+            if (dropoffRadio) dropoffRadio.disabled = true;
+        }
+        
+        if (pickupRadio) {
+            pickupRadio.checked = true;
+            pickupRadio.disabled = false;
+        }
+        
+        if (homeVisitInfo) homeVisitInfo.style.display = 'flex';
+        
+        const userAddressSelection = document.getElementById('userAddressSelection');
+        if (userAddressSelection) userAddressSelection.style.display = 'block';
+        
+        const addressSelect = document.getElementById('userAddressSelect');
+        if (addressSelect) addressSelect.setAttribute('required', 'required');
+        
+        selectedDeliveryMethod = 'pickup';
+        
+    } else {
+        // Cat Sitting & Grooming: Both options available
+        if (dropoffOption) {
+            dropoffOption.style.display = 'block';
+            if (dropoffRadio) dropoffRadio.disabled = false;
+        }
+        
+        if (pickupRadio) pickupRadio.disabled = false;
+        if (homeVisitInfo) homeVisitInfo.style.display = 'none';
+        
+        if (dropoffRadio && !pickupRadio.checked) {
+            dropoffRadio.checked = true;
+            selectedDeliveryMethod = 'dropoff';
+            
+            const userAddressSelection = document.getElementById('userAddressSelection');
+            if (userAddressSelection) userAddressSelection.style.display = 'none';
+            
+            const addressSelect = document.getElementById('userAddressSelect');
+            if (addressSelect) addressSelect.removeAttribute('required');
+        }
+    }
+    
+    calculateTotal();
+}
+
+// ===================================
+// ADDRESS SELECTION
+// ===================================
+function initializeAddressSelection() {
+    const addressSelect = document.getElementById('userAddressSelect');
+    const addressPreview = document.getElementById('addressPreview');
+    
+    if (addressSelect) {
+        addressSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            
+            if (this.value) {
+                const optionText = selectedOption.textContent;
+                const parts = optionText.split(' - ');
+                const label = parts[0];
+                const fullAddress = parts[1] || optionText;
+                
+                document.getElementById('addressPreviewLabel').textContent = label;
+                document.getElementById('addressPreviewText').textContent = fullAddress;
+                
+                if (addressPreview) addressPreview.style.display = 'block';
+            } else {
+                if (addressPreview) addressPreview.style.display = 'none';
+            }
+        });
+    }
+}
+
+// ===================================
+// PRICE CALCULATOR (with Delivery Fee)
 // ===================================
 function calculateTotal() {
     const subtotal = selectedServicePrice * durationDays;
-    const platformFee = Math.round(subtotal * (platformFeePercent / 100));
-    const total = subtotal + platformFee;
     
-    // Update summary display
+    let totalDeliveryFee = 0;
+    if (selectedDeliveryMethod === 'pickup') {
+        totalDeliveryFee = deliveryFee;
+    }
+    
+    const subtotalWithDelivery = subtotal + totalDeliveryFee;
+    const platformFee = Math.round(subtotalWithDelivery * (platformFeePercent / 100));
+    const total = subtotalWithDelivery + platformFee;
+    
     document.getElementById('summarySubtotal').textContent = formatCurrency(subtotal);
+    
+    const deliveryItem = document.getElementById('summaryDeliveryItem');
+    if (totalDeliveryFee > 0) {
+        deliveryItem.style.display = 'flex';
+        document.getElementById('summaryDeliveryFee').textContent = formatCurrency(totalDeliveryFee);
+    } else {
+        deliveryItem.style.display = 'none';
+    }
+    
     document.getElementById('summaryPlatformFee').textContent = formatCurrency(platformFee);
     document.getElementById('summaryTotal').textContent = formatCurrency(total);
 }
@@ -289,12 +398,11 @@ function initializeFormValidation() {
     
     if (form) {
         form.addEventListener('submit', function(e) {
-            // Clear previous errors
             clearFormErrors();
             
             let errors = [];
             
-            // Validate service selection
+            // Validate service
             const serviceSelected = document.querySelector('input[name="service_type"]:checked');
             if (!serviceSelected) {
                 errors.push('Please select a service');
@@ -326,7 +434,6 @@ function initializeFormValidation() {
                 markFieldError('startDate');
             }
             
-            // Only validate end date for multi-day services
             if (!isSingleDayService) {
                 if (!endDate) {
                     errors.push('Please select an end date');
@@ -339,13 +446,28 @@ function initializeFormValidation() {
                 }
             }
             
+            // Validate delivery method
+            const deliveryMethod = document.querySelector('input[name="delivery_method"]:checked');
+            if (!deliveryMethod) {
+                errors.push('Please select a delivery method');
+            }
+            
+            // Validate address for pickup
+            if (deliveryMethod && deliveryMethod.value === 'pickup') {
+                const addressSelect = document.getElementById('userAddressSelect');
+                if (addressSelect && !addressSelect.value) {
+                    errors.push('Please select your address for pick-up service');
+                    markFieldError('userAddressSelect');
+                }
+            }
+            
             // Validate terms
             const termsAccepted = document.querySelector('input[name="terms_accepted"]').checked;
             if (!termsAccepted) {
                 errors.push('Please accept the Terms of Service and Cancellation Policy');
             }
             
-            // If there are errors, prevent submission and show messages
+            // If errors, prevent submission
             if (errors.length > 0) {
                 e.preventDefault();
                 showFormErrors(errors);
@@ -357,7 +479,6 @@ function initializeFormValidation() {
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
             submitBtn.disabled = true;
             
-            // Form is valid, allow submission
             return true;
         });
     }
@@ -385,8 +506,6 @@ function showFormErrors(errors) {
     `;
     
     messagesContainer.innerHTML = errorHTML;
-    
-    // Scroll to error message
     messagesContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -394,7 +513,6 @@ function clearFormErrors() {
     const messagesContainer = document.getElementById('formMessages');
     messagesContainer.innerHTML = '';
     
-    // Remove field error classes
     document.querySelectorAll('.field-error').forEach(field => {
         field.classList.remove('field-error');
     });
@@ -417,7 +535,6 @@ function markFieldError(fieldIdentifier) {
 // ===================================
 // UTILITY FUNCTIONS
 // ===================================
-
 function formatCurrency(amount) {
     if (amount === 0) return 'Rp 0';
     return 'Rp ' + amount.toLocaleString('id-ID');
@@ -426,42 +543,6 @@ function formatCurrency(amount) {
 function formatDate(date) {
     const options = { day: 'numeric', month: 'short', year: 'numeric' };
     return date.toLocaleDateString('en-US', options);
-}
-
-// ===================================
-// SMOOTH SCROLL TO ERROR
-// ===================================
-function scrollToError(element) {
-    if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        element.focus();
-    }
-}
-
-// ===================================
-// AUTO-SAVE DRAFT (Optional Enhancement)
-// ===================================
-function saveDraft() {
-    const formData = {
-        service_type: document.querySelector('input[name="service_type"]:checked')?.value,
-        cat_type: document.querySelector('input[name="cat_type"]:checked')?.value,
-        start_date: document.getElementById('startDate')?.value,
-        end_date: document.getElementById('endDate')?.value,
-        special_notes: document.querySelector('textarea[name="special_notes"]')?.value,
-    };
-    
-    localStorage.setItem('booking_draft', JSON.stringify(formData));
-    console.log('Draft saved');
-}
-
-function loadDraft() {
-    const draft = localStorage.getItem('booking_draft');
-    if (draft) {
-        const formData = JSON.parse(draft);
-        // Restore form values
-        // (Implementation depends on requirements)
-        console.log('Draft loaded:', formData);
-    }
 }
 
 // ===================================
@@ -487,9 +568,8 @@ window.addEventListener('beforeunload', function(e) {
     }
 });
 
-// Clear flag on successful form submission
 document.getElementById('bookingForm')?.addEventListener('submit', function() {
     formModified = false;
 });
 
-console.log('✅ Booking Form JavaScript loaded successfully');
+console.log('✅ Booking Form Complete JavaScript loaded successfully');

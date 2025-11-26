@@ -855,3 +855,253 @@ body {
         font-size: 14px;
     }
 }
+
+/* ===================================
+   DELIVERY METHOD SECTION
+   =================================== */
+
+.delivery-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.delivery-option {
+    cursor: pointer;
+}
+
+.delivery-option input[type="radio"] {
+    display: none;
+}
+
+.delivery-option-card {
+    background: #F9F9F9;
+    border: 2px solid #E0E0E0;
+    border-radius: 16px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.delivery-option input[type="radio"]:checked + .delivery-option-card {
+    background: #FFF3E0;
+    border-color: #FF9800;
+    box-shadow: 0 4px 16px rgba(255, 152, 0, 0.2);
+}
+
+.delivery-option-card:hover {
+    border-color: #FFA726;
+    transform: translateY(-2px);
+}
+
+.delivery-option-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.delivery-option-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #FFA726 0%, #FF9800 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.delivery-option-info {
+    flex: 1;
+}
+
+.delivery-option-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.delivery-option-price {
+    font-size: 16px;
+    font-weight: 700;
+    color: #FF9800;
+}
+
+.delivery-option-description {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 16px;
+}
+
+/* Sitter Address Box */
+.sitter-address-box {
+    padding: 16px;
+    background: white;
+    border-radius: 12px;
+    border: 2px solid #E0E0E0;
+    margin-top: 16px;
+}
+
+.address-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.address-header i {
+    color: #FF9800;
+}
+
+.address-text {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.5;
+    margin: 0 0 12px 0;
+}
+
+.view-map-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #FF9800;
+    text-decoration: none;
+    font-weight: 600;
+    transition: gap 0.3s ease;
+}
+
+.view-map-link:hover {
+    gap: 10px;
+    text-decoration: underline;
+}
+
+.view-map-link i {
+    font-size: 14px;
+}
+
+/* User Address Selection */
+.user-address-selection {
+    margin-top: 16px;
+}
+
+.add-address-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 10px 16px;
+    background: #FFF3E0;
+    color: #FF9800;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: 2px solid #FFA726;
+}
+
+.add-address-link:hover {
+    background: #FF9800;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.add-address-link i {
+    font-size: 16px;
+}
+
+/* Selected Address Preview */
+.selected-address-preview {
+    margin-top: 16px;
+    padding: 16px;
+    background: #E8F5E9;
+    border: 2px solid #4CAF50;
+    border-radius: 12px;
+}
+
+.address-preview-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #2E7D32;
+    margin-bottom: 8px;
+}
+
+.address-preview-header i {
+    font-size: 16px;
+}
+
+.selected-address-preview p {
+    font-size: 14px;
+    color: #2E7D32;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Home Visit Info Box */
+.home-visit-info {
+    background: #FFF3E0;
+    border-left-color: #FF9800;
+}
+
+.home-visit-info i {
+    color: #FF9800;
+}
+
+.home-visit-info p {
+    color: #E65100;
+}
+
+/* Disabled state for Home Visit */
+.delivery-option.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.delivery-option.disabled .delivery-option-card {
+    cursor: not-allowed;
+}
+
+.delivery-option.disabled .delivery-option-card:hover {
+    transform: none;
+    border-color: #E0E0E0;
+}
+
+/* ===================================
+   RESPONSIVE - DELIVERY METHOD
+   =================================== */
+
+@media (max-width: 640px) {
+    .delivery-option-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .delivery-option-name {
+        font-size: 16px;
+    }
+    
+    .delivery-option-price {
+        font-size: 15px;
+    }
+    
+    .sitter-address-box,
+    .user-address-selection {
+        padding: 14px;
+    }
+    
+    .add-address-link {
+        width: 100%;
+        justify-content: center;
+    }
+}

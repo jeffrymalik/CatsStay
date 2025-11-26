@@ -513,3 +513,353 @@ spinStyle.textContent = `
 document.head.appendChild(spinStyle);
 
 console.log('Change Password functionality loaded');
+
+// ===================================
+// PROFILE ADDRESSES - JavaScript
+// Handle Add, Edit, Delete, Set Primary
+// ===================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Profile Addresses loaded');
+    
+    initializeAddressModal();
+    initializeAddressActions();
+});
+
+// ===================================
+// MODAL MANAGEMENT
+// ===================================
+function initializeAddressModal() {
+    const modal = document.getElementById('addressModal');
+    const btnAddAddress = document.getElementById('btnAddAddress');
+    const btnCloseModal = document.getElementById('btnCloseModal');
+    const btnCancelModal = document.getElementById('btnCancelModal');
+    const addressForm = document.getElementById('addressForm');
+    
+    // Open modal for new address
+    if (btnAddAddress) {
+        btnAddAddress.addEventListener('click', function() {
+            openAddressModal();
+        });
+    }
+    
+    // Close modal
+    if (btnCloseModal) {
+        btnCloseModal.addEventListener('click', closeAddressModal);
+    }
+    
+    if (btnCancelModal) {
+        btnCancelModal.addEventListener('click', closeAddressModal);
+    }
+    
+    // Close on overlay click
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeAddressModal();
+            }
+        });
+    }
+    
+    // Handle form submission
+    if (addressForm) {
+        addressForm.addEventListener('submit', handleAddressSubmit);
+    }
+}
+
+function openAddressModal(addressData = null) {
+    const modal = document.getElementById('addressModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const form = document.getElementById('addressForm');
+    
+    if (addressData) {
+        // Edit mode
+        modalTitle.textContent = 'Edit Address';
+        document.getElementById('addressId').value = addressData.id;
+        document.getElementById('addressLabel').value = addressData.label;
+        document.getElementById('fullAddress').value = addressData.full_address;
+        document.getElementById('city').value = addressData.city;
+        document.getElementById('province').value = addressData.province;
+        document.getElementById('postalCode').value = addressData.postal_code;
+        document.getElementById('country').value = addressData.country;
+        document.getElementById('setPrimary').checked = addressData.is_primary;
+        
+        // Disable "set primary" if already primary
+        if (addressData.is_primary) {
+            document.getElementById('setPrimary').disabled = true;
+        }
+    } else {
+        // Add mode
+        modalTitle.textContent = 'Add New Address';
+        form.reset();
+        document.getElementById('addressId').value = '';
+        document.getElementById('country').value = 'Indonesia';
+        document.getElementById('setPrimary').disabled = false;
+    }
+    
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeAddressModal() {
+    const modal = document.getElementById('addressModal');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+// ===================================
+// ADDRESS ACTIONS
+// ===================================
+function initializeAddressActions() {
+    // Edit buttons
+    document.querySelectorAll('.btn-edit-address').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const addressId = this.dataset.addressId;
+            handleEditAddress(addressId);
+        });
+    });
+    
+    // Delete buttons
+    document.querySelectorAll('.btn-delete-address').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const addressId = this.dataset.addressId;
+            handleDeleteAddress(addressId);
+        });
+    });
+    
+    // Set primary buttons
+    document.querySelectorAll('.btn-set-primary').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const addressId = this.dataset.addressId;
+            handleSetPrimary(addressId);
+        });
+    });
+}
+
+function handleEditAddress(addressId) {
+    // Get address data from card
+    const addressCard = document.querySelector(`[data-address-id="${addressId}"]`);
+    
+    if (addressCard) {
+        const addressData = {
+            id: addressId,
+            label: addressCard.querySelector('.address-label').textContent.trim(),
+            full_address: addressCard.querySelector('.address-info-value').textContent.trim(),
+            city: addressCard.querySelectorAll('.address-info-value')[1].textContent.trim(),
+            province: addressCard.querySelectorAll('.address-info-value')[2].textContent.trim(),
+            postal_code: addressCard.querySelectorAll('.address-info-value')[3].textContent.trim(),
+            country: addressCard.querySelectorAll('.address-info-value')[4].textContent.trim(),
+            is_primary: addressCard.querySelector('.primary-badge') !== null
+        };
+        
+        openAddressModal(addressData);
+    }
+}
+
+function handleDeleteAddress(addressId) {
+    if (confirm('Are you sure you want to delete this address?')) {
+        // TODO: Send AJAX request to delete address
+        // For now, just show success message
+        
+        // Remove address card from DOM
+        const addressCard = document.querySelector(`[data-address-id="${addressId}"]`);
+        if (addressCard) {
+            addressCard.style.animation = 'fadeOut 0.3s ease';
+            setTimeout(() => {
+                addressCard.remove();
+                showSuccessMessage('Address deleted successfully!');
+                
+                // Check if no addresses left
+                if (document.querySelectorAll('.address-card').length === 0) {
+                    location.reload(); // Show empty state
+                }
+            }, 300);
+        }
+        
+        console.log('Delete address:', addressId);
+    }
+}
+
+function handleSetPrimary(addressId) {
+    if (confirm('Set this address as your primary address?')) {
+        // TODO: Send AJAX request to set primary
+        
+        // Update UI - remove all primary badges
+        document.querySelectorAll('.primary-badge').forEach(badge => {
+            badge.remove();
+        });
+        
+        document.querySelectorAll('.btn-set-primary').forEach(btn => {
+            btn.style.display = 'inline-flex';
+        });
+        
+        // Add primary badge to selected address
+        const addressCard = document.querySelector(`[data-address-id="${addressId}"]`);
+        if (addressCard) {
+            const labelSection = addressCard.querySelector('.address-label-section > div');
+            const badge = document.createElement('span');
+            badge.className = 'primary-badge';
+            badge.textContent = 'Primary';
+            labelSection.appendChild(badge);
+            
+            // Hide "Set Primary" button for this address
+            const setPrimaryBtn = addressCard.querySelector('.btn-set-primary');
+            if (setPrimaryBtn) {
+                setPrimaryBtn.style.display = 'none';
+            }
+            
+            showSuccessMessage('Primary address updated successfully!');
+        }
+        
+        console.log('Set primary address:', addressId);
+    }
+}
+
+// ===================================
+// FORM SUBMISSION
+// ===================================
+function handleAddressSubmit(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const addressId = formData.get('address_id');
+    
+    // TODO: Send AJAX request to save address
+    // For now, just show success message and close modal
+    
+    if (addressId) {
+        // Update existing address
+        console.log('Update address:', addressId);
+        showSuccessMessage('Address updated successfully!');
+        
+        // Update address card in DOM
+        updateAddressCard(addressId, formData);
+    } else {
+        // Create new address
+        console.log('Create new address');
+        showSuccessMessage('Address added successfully!');
+        
+        // Reload page to show new address
+        setTimeout(() => {
+            location.reload();
+        }, 1000);
+    }
+    
+    closeAddressModal();
+}
+
+function updateAddressCard(addressId, formData) {
+    const addressCard = document.querySelector(`[data-address-id="${addressId}"]`);
+    
+    if (addressCard) {
+        // Update label
+        const label = formData.get('label');
+        addressCard.querySelector('.address-label').textContent = label;
+        
+        // Update icon based on label
+        const icons = {
+            'Home': 'fa-home',
+            'Office': 'fa-building',
+            'Other': 'fa-map-marker-alt'
+        };
+        const iconElement = addressCard.querySelector('.address-icon i');
+        iconElement.className = `fas ${icons[label] || 'fa-map-marker-alt'}`;
+        
+        // Update address details
+        const values = addressCard.querySelectorAll('.address-info-value');
+        values[0].textContent = formData.get('full_address');
+        values[1].textContent = formData.get('city');
+        values[2].textContent = formData.get('province');
+        values[3].textContent = formData.get('postal_code');
+        values[4].textContent = formData.get('country');
+        
+        // Handle primary status
+        if (formData.get('set_primary') === 'on') {
+            // Remove all primary badges
+            document.querySelectorAll('.primary-badge').forEach(badge => {
+                badge.remove();
+            });
+            
+            // Add primary badge to this address
+            const labelSection = addressCard.querySelector('.address-label-section > div');
+            const badge = document.createElement('span');
+            badge.className = 'primary-badge';
+            badge.textContent = 'Primary';
+            labelSection.appendChild(badge);
+            
+            // Hide "Set Primary" button
+            const setPrimaryBtn = addressCard.querySelector('.btn-set-primary');
+            if (setPrimaryBtn) {
+                setPrimaryBtn.style.display = 'none';
+            }
+            
+            // Show "Set Primary" buttons on other addresses
+            document.querySelectorAll('.btn-set-primary').forEach(btn => {
+                if (btn.dataset.addressId !== addressId) {
+                    btn.style.display = 'inline-flex';
+                }
+            });
+        }
+        
+        // Highlight updated card
+        addressCard.style.animation = 'pulse 0.5s ease';
+        setTimeout(() => {
+            addressCard.style.animation = '';
+        }, 500);
+    }
+}
+
+// ===================================
+// UTILITY FUNCTIONS
+// ===================================
+function showSuccessMessage(message) {
+    // Create or update existing success message
+    let successDiv = document.querySelector('.alert-success');
+    
+    if (!successDiv) {
+        successDiv = document.createElement('div');
+        successDiv.className = 'alert-success';
+        successDiv.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>${message}</span>
+        `;
+        
+        const profileContent = document.querySelector('.profile-content');
+        profileContent.insertBefore(successDiv, profileContent.children[1]);
+    } else {
+        successDiv.querySelector('span').textContent = message;
+    }
+    
+    // Scroll to message
+    successDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        successDiv.style.animation = 'slideUp 0.3s ease';
+        setTimeout(() => successDiv.remove(), 300);
+    }, 5000);
+}
+
+// Add animations to styles
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes fadeOut {
+        from { opacity: 1; transform: scale(1); }
+        to { opacity: 0; transform: scale(0.95); }
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+    }
+    
+    @keyframes slideUp {
+        from { opacity: 1; transform: translateY(0); }
+        to { opacity: 0; transform: translateY(-20px); }
+    }
+`;
+document.head.appendChild(style);
+
+console.log('✅ Profile Addresses JavaScript loaded successfully');

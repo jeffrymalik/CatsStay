@@ -1,0 +1,656 @@
+/* ===================================
+   WRITE REVIEW - Styles
+   =================================== */
+
+.review-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+    padding: 40px 20px;
+}
+
+.review-wrapper {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* ===================================
+   BACK BUTTON
+   =================================== */
+
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #666;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.back-button:hover {
+    background: rgba(255, 255, 255, 0.5);
+    color: #FF9800;
+}
+
+.back-button svg {
+    transition: transform 0.3s ease;
+}
+
+.back-button:hover svg {
+    transform: translateX(-4px);
+}
+
+/* ===================================
+   PAGE HEADER
+   =================================== */
+
+.review-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.review-header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #333;
+    margin: 0 0 8px 0;
+}
+
+.review-header p {
+    font-size: 16px;
+    color: #666;
+    margin: 0;
+}
+
+/* ===================================
+   BOOKING INFO CARD
+   =================================== */
+
+.booking-info-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-left: 4px solid #FF9800;
+}
+
+.booking-info-content {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.sitter-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #FFA726;
+    flex-shrink: 0;
+}
+
+.booking-details {
+    flex: 1;
+}
+
+.sitter-name {
+    font-size: 22px;
+    font-weight: 700;
+    color: #333;
+    margin: 0 0 8px 0;
+}
+
+.booking-meta {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.service-type,
+.booking-dates {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: #666;
+}
+
+.service-type i,
+.booking-dates i {
+    color: #FF9800;
+}
+
+.booking-code {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #999;
+    padding: 6px 12px;
+    background: #F5F5F5;
+    border-radius: 6px;
+}
+
+.booking-code i {
+    color: #FF9800;
+}
+
+.booking-code strong {
+    color: #333;
+}
+
+/* ===================================
+   FORM SECTIONS
+   =================================== */
+
+#reviewForm {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.form-section {
+    margin-bottom: 32px;
+}
+
+.form-label {
+    display: block;
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.required {
+    color: #F44336;
+    margin-left: 4px;
+}
+
+.optional {
+    color: #999;
+    font-weight: 400;
+    font-size: 14px;
+    margin-left: 4px;
+}
+
+.form-hint {
+    font-size: 13px;
+    color: #999;
+    margin: 0 0 16px 0;
+}
+
+/* ===================================
+   STAR RATING (OUTLINED)
+   =================================== */
+
+.star-rating-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 8px;
+}
+
+.star-rating {
+    display: flex;
+    gap: 8px;
+}
+
+.star {
+    font-size: 36px;
+    color: #E0E0E0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.star:hover,
+.star.hover {
+    color: #FFA726;
+    transform: scale(1.1);
+}
+
+.star.selected {
+    color: #FF9800;
+}
+
+.rating-text {
+    font-size: 15px;
+    color: #666;
+    font-weight: 600;
+}
+
+.rating-text.has-rating {
+    color: #FF9800;
+}
+
+/* ===================================
+   REVIEW TEXT
+   =================================== */
+
+.form-textarea {
+    width: 100%;
+    padding: 16px;
+    border: 2px solid #E0E0E0;
+    border-radius: 12px;
+    font-size: 15px;
+    font-family: 'Gotham', sans-serif;
+    color: #333;
+    resize: vertical;
+    min-height: 150px;
+    transition: all 0.3s ease;
+}
+
+.form-textarea:focus {
+    outline: none;
+    border-color: #FFA726;
+    box-shadow: 0 0 0 3px rgba(255, 167, 38, 0.1);
+}
+
+.form-textarea::placeholder {
+    color: #BDBDBD;
+}
+
+.textarea-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+}
+
+.char-counter {
+    font-size: 13px;
+    color: #999;
+}
+
+.char-counter #charCount {
+    font-weight: 600;
+    color: #666;
+}
+
+.char-counter.warning #charCount {
+    color: #F57C00;
+}
+
+.char-counter.error #charCount {
+    color: #F44336;
+}
+
+.char-min {
+    color: #BDBDBD;
+    font-size: 12px;
+}
+
+/* ===================================
+   PHOTO UPLOAD (DRAG & DROP)
+   =================================== */
+
+.photo-upload-wrapper {
+    margin-top: 16px;
+}
+
+.drag-drop-zone {
+    border: 2px dashed #E0E0E0;
+    border-radius: 12px;
+    padding: 40px;
+    text-align: center;
+    background: #FAFAFA;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.drag-drop-zone:hover {
+    border-color: #FFA726;
+    background: #FFF3E0;
+}
+
+.drag-drop-zone.drag-over {
+    border-color: #FF9800;
+    background: #FFE0B2;
+    transform: scale(1.02);
+}
+
+.drag-drop-content i {
+    font-size: 48px;
+    color: #BDBDBD;
+    margin-bottom: 16px;
+}
+
+.drag-drop-zone:hover .drag-drop-content i {
+    color: #FFA726;
+}
+
+.drag-drop-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: #666;
+    margin: 0 0 8px 0;
+}
+
+.drag-drop-hint {
+    font-size: 13px;
+    color: #999;
+    margin: 0;
+}
+
+/* Photo Previews */
+.photo-previews {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.photo-preview {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid #E0E0E0;
+    background: #F5F5F5;
+}
+
+.photo-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.photo-preview-remove {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(244, 67, 54, 0.9);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.photo-preview-remove:hover {
+    background: #F44336;
+    transform: scale(1.1);
+}
+
+.photo-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    font-size: 13px;
+    color: #666;
+}
+
+.photo-info i {
+    color: #FFA726;
+}
+
+/* ===================================
+   RECOMMENDATION OPTIONS
+   =================================== */
+
+.recommendation-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.radio-option {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border: 2px solid #E0E0E0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.radio-option:hover {
+    border-color: #FFA726;
+    background: #FFF3E0;
+}
+
+.radio-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.radio-custom {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #E0E0E0;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.radio-option input[type="radio"]:checked ~ .radio-custom {
+    border-color: #FF9800;
+    background: #FF9800;
+    box-shadow: inset 0 0 0 3px white;
+}
+
+.radio-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.radio-icon {
+    font-size: 24px;
+}
+
+.radio-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+}
+
+.radio-option input[type="radio"]:checked ~ .radio-content .radio-label {
+    color: #333;
+}
+
+/* ===================================
+   GUIDELINES BOX
+   =================================== */
+
+.guidelines-box {
+    background: #E3F2FD;
+    border-left: 4px solid #2196F3;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 32px;
+}
+
+.guidelines-box h4 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1976D2;
+    margin: 0 0 12px 0;
+}
+
+.guidelines-box ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.guidelines-box li {
+    font-size: 14px;
+    color: #1976D2;
+    line-height: 1.8;
+}
+
+/* ===================================
+   ERROR MESSAGES
+   =================================== */
+
+.error-message {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #FFEBEE;
+    border-left: 4px solid #F44336;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #C62828;
+    margin-top: 8px;
+}
+
+.error-message i {
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+/* Highlight error fields */
+.form-textarea.error {
+    border-color: #F44336;
+}
+
+.star-rating.error .star {
+    color: #FFCDD2;
+}
+
+/* ===================================
+   FORM ACTIONS
+   =================================== */
+
+.form-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+    padding-top: 24px;
+    border-top: 2px solid #F5F5F5;
+}
+
+.btn-cancel,
+.btn-submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 32px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn-cancel {
+    background: white;
+    color: #666;
+    border: 2px solid #E0E0E0;
+}
+
+.btn-cancel:hover {
+    background: #F5F5F5;
+    border-color: #BDBDBD;
+}
+
+.btn-submit {
+    background: linear-gradient(135deg, #FFA726 0%, #FF9800 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(255, 167, 38, 0.3);
+}
+
+.btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(255, 167, 38, 0.4);
+}
+
+.btn-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ===================================
+   RESPONSIVE
+   =================================== */
+
+@media (max-width: 768px) {
+    .review-container {
+        padding: 20px 16px;
+    }
+    
+    #reviewForm {
+        padding: 24px 20px;
+    }
+    
+    .review-header h1 {
+        font-size: 26px;
+    }
+    
+    .booking-info-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .sitter-avatar {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .booking-meta {
+        justify-content: center;
+    }
+    
+    .star {
+        font-size: 32px;
+    }
+    
+    .recommendation-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+    
+    .btn-cancel,
+    .btn-submit {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .star {
+        font-size: 28px;
+        gap: 4px;
+    }
+    
+    .star-rating-wrapper {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .drag-drop-zone {
+        padding: 30px 20px;
+    }
+    
+    .drag-drop-content i {
+        font-size: 36px;
+    }
+}

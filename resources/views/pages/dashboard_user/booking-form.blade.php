@@ -88,6 +88,7 @@
                                        data-price="{{ $service['price'] }}"
                                        data-name="{{ $service['name'] }}"
                                        data-single-day="{{ $service['is_single_day'] ? 'true' : 'false' }}"
+                                       data-is-home-visit="{{ $service['type'] === 'home-visit' ? 'true' : 'false' }}"
                                        {{ $index === 0 ? 'checked' : '' }}
                                        required>
                                 <div class="service-option-card">
@@ -238,10 +239,110 @@
                         </div>
                     </div>
 
-                    {{-- Step 4: Special Notes --}}
+                    {{-- Step 4: Delivery Method (NEW!) --}}
                     <div class="form-section">
                         <div class="section-header">
                             <span class="step-number">4</span>
+                            <h3 class="section-title">Delivery Method</h3>
+                        </div>
+
+                        <div class="delivery-selection">
+                            {{-- Drop-off Option --}}
+                            <label class="delivery-option" id="dropoffOption">
+                                <input type="radio" 
+                                       name="delivery_method" 
+                                       value="dropoff" 
+                                       checked
+                                       required>
+                                <div class="delivery-option-card">
+                                    <div class="delivery-option-header">
+                                        <div class="delivery-option-icon">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                        </div>
+                                        <div class="delivery-option-info">
+                                            <h4 class="delivery-option-name">Drop-off</h4>
+                                            <p class="delivery-option-price">Included</p>
+                                        </div>
+                                    </div>
+                                    <p class="delivery-option-description">I'll bring my cat to sitter's place</p>
+                                    
+                                    {{-- Sitter Address (shown when drop-off selected) --}}
+                                    <div class="sitter-address-box" id="sitterAddressBox">
+                                        <div class="address-header">
+                                            <i class="fas fa-home"></i>
+                                            <span>Sitter's Address:</span>
+                                        </div>
+                                        <p class="address-text">{{ $sitter['address'] ?? 'Jl. Sudirman No. 45, ' . $sitter['location'] }}</p>
+                                        <a href="#" class="view-map-link">
+                                            <i class="fas fa-map"></i>
+                                            View on Map
+                                        </a>
+                                    </div>
+                                </div>
+                            </label>
+
+                            {{-- Pick-up Option --}}
+                            <label class="delivery-option" id="pickupOption">
+                                <input type="radio" 
+                                       name="delivery_method" 
+                                       value="pickup"
+                                       required>
+                                <div class="delivery-option-card">
+                                    <div class="delivery-option-header">
+                                        <div class="delivery-option-icon">
+                                            <i class="fas fa-car"></i>
+                                        </div>
+                                        <div class="delivery-option-info">
+                                            <h4 class="delivery-option-name">Pick-up Service</h4>
+                                            <p class="delivery-option-price">+ Rp 50,000</p>
+                                        </div>
+                                    </div>
+                                    <p class="delivery-option-description">Sitter will come to my place</p>
+                                    
+                                    {{-- User Address Selection (shown when pick-up selected) --}}
+                                    <div class="user-address-selection" id="userAddressSelection" style="display: none;">
+                                        <label class="form-label">
+                                            <i class="fas fa-home"></i>
+                                            Select Your Address *
+                                        </label>
+                                        <select name="user_address_id" id="userAddressSelect" class="form-select">
+                                            <option value="">Choose your address...</option>
+                                            @foreach($userAddresses as $address)
+                                            <option value="{{ $address['id'] }}">
+                                                {{ $address['label'] }} - {{ $address['full_address'] }}
+                                            </option>
+                                            @endforeach
+                                        </select>
+                                        
+                                        <a href="{{ route('profile.address') }}" class="add-address-link" target="_blank">
+                                            <i class="fas fa-plus-circle"></i>
+                                            Add New Address
+                                        </a>
+                                        
+                                        {{-- Selected Address Preview --}}
+                                        <div class="selected-address-preview" id="addressPreview" style="display: none;">
+                                            <div class="address-preview-header">
+                                                <i class="fas fa-map-pin"></i>
+                                                <span id="addressPreviewLabel"></span>
+                                            </div>
+                                            <p id="addressPreviewText"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+
+                        {{-- Home Visit Info Box --}}
+                        <div class="info-box home-visit-info" id="homeVisitInfo" style="display: none;">
+                            <i class="fas fa-info-circle"></i>
+                            <p><strong>Home Visit Service:</strong> Sitter will come to your place. Pick-up fee (Rp 50,000) is included in the service.</p>
+                        </div>
+                    </div>
+
+                    {{-- Step 5: Special Notes --}}
+                    <div class="form-section">
+                        <div class="section-header">
+                            <span class="step-number">5</span>
                             <h3 class="section-title">Special Notes (Optional)</h3>
                         </div>
 
@@ -297,6 +398,12 @@
                     <div class="summary-item subtotal">
                         <span class="summary-label">Subtotal</span>
                         <span class="summary-value" id="summarySubtotal">Rp 0</span>
+                    </div>
+
+                    {{-- Delivery Fee (NEW!) --}}
+                    <div class="summary-item" id="summaryDeliveryItem" style="display: none;">
+                        <span class="summary-label">Pick-up Service</span>
+                        <span class="summary-value" id="summaryDeliveryFee">Rp 50,000</span>
                     </div>
 
                     <div class="summary-item">

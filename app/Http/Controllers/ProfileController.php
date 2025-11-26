@@ -43,16 +43,33 @@ class ProfileController extends Controller
             'photo' => null,
         ];
 
-        // Hardcoded address data
-        $address = [
-            'country' => 'Indonesia',
-            'city' => 'Jakarta Barat',
-            'postal_code' => '11530',
-            'province' => 'DKI Jakarta',
-            'full_address' => 'Jl. Kebon Jeruk No. 123, Kelurahan Kebon Jeruk, Kecamatan Kebon Jeruk',
+        // Hardcoded multiple addresses
+        $addresses = [
+            [
+                'id' => 1,
+                'label' => 'Home',
+                'icon' => 'fa-home',
+                'full_address' => 'Jl. Kebon Jeruk No. 123, Kelurahan Kebon Jeruk, Kecamatan Kebon Jeruk',
+                'city' => 'Jakarta Barat',
+                'province' => 'DKI Jakarta',
+                'postal_code' => '11530',
+                'country' => 'Indonesia',
+                'is_primary' => true,
+            ],
+            [
+                'id' => 2,
+                'label' => 'Office',
+                'icon' => 'fa-building',
+                'full_address' => 'Jl. Thamrin No. 8, Menteng',
+                'city' => 'Jakarta Pusat',
+                'province' => 'DKI Jakarta',
+                'postal_code' => '10230',
+                'country' => 'Indonesia',
+                'is_primary' => false,
+            ],
         ];
 
-        return view('pages.profile.address', compact('user', 'address'));
+        return view('pages.profile.address', compact('user', 'addresses'));
     }
 
     /**

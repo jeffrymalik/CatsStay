@@ -7,6 +7,7 @@ use App\Http\Controllers\MessagesController;
 use App\Http\Controllers\MyCatsController;
 use App\Http\Controllers\MyRequestController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SelectServiceController;
 use App\Http\Controllers\SitterProfileController;
 use App\Http\Controllers\UserDashboardController;
@@ -74,6 +75,7 @@ Route::middleware('auth')->group(function () {
     // Booking Routes
     Route::get('/booking/create/{sitter_id}', [BookingController::class, 'create'])->name('booking.create');
     Route::post('/booking/store', [BookingController::class, 'store'])->name('booking.store');
+    Route::get('/booking/confirmation', [BookingController::class, 'confirmation'])->name('booking.confirmation'); // <- ADD THIS
 
     Route::prefix('my-cats')->name('my-cats.')->group(function () {
         Route::get('/', [MyCatsController::class, 'index'])->name('index');
@@ -106,6 +108,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/change-password', [ProfileController::class, 'changePassword'])->name('profile.change-password');
     
     });
+
+    // Review Routes
+    Route::get('/review/create/{booking_id}', [ReviewController::class, 'create'])->name('review.create'); // <- ADD THIS
+    Route::post('/review/store', [ReviewController::class, 'store'])->name('review.store'); // <- ADD THIS
     
     // Tambahkan route lain yang perlu login di sini
     // Contoh:
