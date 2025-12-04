@@ -9,6 +9,7 @@ use App\Http\Controllers\MyRequestController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SelectServiceController;
+use App\Http\Controllers\SitterDashboardController;
 use App\Http\Controllers\SitterProfileController;
 use App\Http\Controllers\UserDashboardController;
 use Illuminate\Support\Facades\Route;
@@ -61,6 +62,24 @@ Route::middleware('auth')->group(function () {
     // Logout Route
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('user.dashboard');
+
+        Route::get('/dashboardb', [SitterDashboardController::class, 'index'])
+        ->name('dashboard');
+
+    // Booking Requests Actions
+    Route::post('/requests/{id}/accept', [SitterDashboardController::class, 'acceptRequest'])
+        ->name('requests.accept');
+    
+    Route::post('/requests/{id}/reject', [SitterDashboardController::class, 'rejectRequest'])
+        ->name('requests.reject');
+
+    // Notifications
+    Route::post('/notifications/mark-read', [SitterDashboardController::class, 'markNotificationsRead'])
+        ->name('notifications.mark-read');
+
+    // Earnings Data (AJAX)
+    Route::get('/earnings/data', [SitterDashboardController::class, 'getEarningsData'])
+        ->name('earnings.data');
     Route::get('/find-sitter', [FindSitterController::class, 'index'])->name('find-sitter');
 
     Route::get('/select-service', [SelectServiceController::class, 'index'])
@@ -118,3 +137,5 @@ Route::middleware('auth')->group(function () {
     // Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     // Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
 });
+
+
