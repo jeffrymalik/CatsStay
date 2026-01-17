@@ -17,9 +17,25 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('phone')->nullable();
+
+            // Profile
+            $table->enum('role', ['normal', 'sitter', 'admin'])->default('normal');
+            $table->text('bio')->nullable();
+            $table->date('date_of_birth')->nullable();
+            $table->enum('gender', ['male', 'female'])->nullable();
+            $table->string('photo')->nullable();
+            $table->boolean('is_verified')->default(false);
+
+            // Status
+            $table->enum('status', ['active', 'inactive', 'suspended'])->default('active');
+            $table->timestamp('last_login_at')->nullable();
+
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
         });
+
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();

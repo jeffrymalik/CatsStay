@@ -86,40 +86,40 @@
             </div>
             @endif
 
-            @if(count($addresses) > 0)
+            @if($addresses->count() > 0)
                 <!-- Addresses List -->
                 @foreach($addresses as $address)
-                <div class="address-card" data-address-id="{{ $address['id'] }}">
+                <div class="address-card" data-address-id="{{ $address->id }}">
                     <div class="address-card-header">
                         <div class="address-label-section">
                             <div class="address-icon">
-                                <i class="fas {{ $address['icon'] }}"></i>
+                                <i class="fas {{ $address->label === 'Home' ? 'fa-home' : ($address->label === 'Office' ? 'fa-building' : 'fa-map-marker-alt') }}"></i>
                             </div>
                             <div>
-                                <h3 class="address-label">{{ $address['label'] }}</h3>
-                                @if($address['is_primary'])
+                                <h3 class="address-label">{{ $address->label }}</h3>
+                                @if($address->is_primary)
                                 <span class="primary-badge">Primary</span>
                                 @endif
                             </div>
                         </div>
                         <div class="address-actions">
-                            @if(!$address['is_primary'])
-                            <button class="btn-set-primary" data-address-id="{{ $address['id'] }}">
+                            @if(!$address->is_primary)
+                            <button class="btn-set-primary" onclick="setPrimary({{ $address->id }})">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                                 Set as Primary
                             </button>
                             @endif
-                            <button class="btn-edit-address" data-address-id="{{ $address['id'] }}">
+                            <button class="btn-edit-address" onclick="editAddress({{ $address->id }})">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                                 Edit
                             </button>
-                            @if(!$address['is_primary'])
-                            <button class="btn-delete-address" data-address-id="{{ $address['id'] }}">
+                            @if(!$address->is_primary)
+                            <button class="btn-delete-address" onclick="deleteAddress({{ $address->id }})">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <polyline points="3 6 5 6 21 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -134,37 +134,27 @@
                         <div class="address-info-row">
                             <div class="address-info-item">
                                 <span class="address-info-label">Full Address:</span>
-                                <p class="address-info-value">{{ $address['full_address'] }}</p>
+                                <p class="address-info-value">{{ $address->full_address }}</p>
                             </div>
                         </div>
 
                         <div class="address-info-grid">
                             <div class="address-info-item">
                                 <span class="address-info-label">City:</span>
-                                <p class="address-info-value">{{ $address['city'] }}</p>
+                                <p class="address-info-value">{{ $address->city }}</p>
                             </div>
                             <div class="address-info-item">
                                 <span class="address-info-label">Province:</span>
-                                <p class="address-info-value">{{ $address['province'] }}</p>
+                                <p class="address-info-value">{{ $address->province }}</p>
                             </div>
                             <div class="address-info-item">
                                 <span class="address-info-label">Postal Code:</span>
-                                <p class="address-info-value">{{ $address['postal_code'] }}</p>
+                                <p class="address-info-value">{{ $address->postal_code }}</p>
                             </div>
                             <div class="address-info-item">
-                                <span class="address-info-label">Country:</span>
-                                <p class="address-info-value">{{ $address['country'] }}</p>
+                                <span class="address-info-label">Added:</span>
+                                <p class="address-info-value">{{ $address->created_at->format('M d, Y') }}</p>
                             </div>
-                        </div>
-
-                        <div class="address-map-link">
-                            <a href="#" class="view-map-btn">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                                View on Map
-                            </a>
                         </div>
                     </div>
                 </div>
@@ -221,11 +211,13 @@
             </button>
         </div>
 
-        <form id="addressForm">
+        <form id="addressForm" method="POST">
+            @csrf
             <input type="hidden" id="addressId" name="address_id">
+            <input type="hidden" id="formMethod" name="_method" value="">
 
             <div class="form-group">
-                <label class="form-label">Address Label *</label>
+                <label class="form-label">Address Label <span class="required">*</span></label>
                 <select id="addressLabel" name="label" class="form-input" required>
                     <option value="">Choose label...</option>
                     <option value="Home">🏠 Home</option>
@@ -235,35 +227,31 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">Full Address *</label>
+                <label class="form-label">Full Address <span class="required">*</span></label>
                 <textarea id="fullAddress" name="full_address" class="form-input" rows="3" placeholder="Street address, building, apartment number..." required></textarea>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">City *</label>
-                    <input type="text" id="city" name="city" class="form-input" placeholder="e.g., Jakarta Barat" required>
+                    <label class="form-label">City <span class="required">*</span></label>
+                    <input type="text" id="city" name="city" class="form-input" placeholder="e.g., Jakarta Selatan" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Province *</label>
+                    <label class="form-label">Province <span class="required">*</span></label>
                     <input type="text" id="province" name="province" class="form-input" placeholder="e.g., DKI Jakarta" required>
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Postal Code *</label>
-                    <input type="text" id="postalCode" name="postal_code" class="form-input" placeholder="e.g., 11530" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Country *</label>
-                    <input type="text" id="country" name="country" class="form-input" value="Indonesia" required>
+                    <label class="form-label">Postal Code <span class="required">*</span></label>
+                    <input type="text" id="postalCode" name="postal_code" class="form-input" placeholder="e.g., 12190" required maxlength="10">
                 </div>
             </div>
 
             <div class="checkbox-wrapper">
                 <input type="checkbox" id="setPrimary" name="set_primary">
-                <span class="checkbox-label">Set as primary address</span>
+                <label for="setPrimary" class="checkbox-label">Set as primary address</label>
             </div>
 
             <div class="modal-actions">
@@ -282,6 +270,5 @@
 @endsection
 
 @section('js')
-<script src="{{ asset('js/profile.js') }}"></script>
 <script src="{{ asset('js/profile-addresses.js') }}"></script>
 @endsection

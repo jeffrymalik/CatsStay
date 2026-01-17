@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', $cat['name'] . ' - My Cats')
+@section('title', $cat->name . ' - My Cats')
 
 @section('css')
 <link rel="stylesheet" href="{{ asset('css/my-cats.css') }}">
@@ -19,11 +19,11 @@
                 Cat Profile
             </h1>
             <div class="detail-actions">
-                <a href="{{ route('my-cats.edit', $cat['id']) }}" class="btn-action-header btn-edit">
+                <a href="{{ route('my-cats.edit', $cat->id) }}" class="btn-action-header btn-edit">
                     <i class="fas fa-edit"></i>
                     Edit Profile
                 </a>
-                <button onclick="confirmDelete({{ $cat['id'] }}, '{{ $cat['name'] }}')" class="btn-action-header btn-delete">
+                <button onclick="confirmDelete({{ $cat->id }}, '{{ $cat->name }}')" class="btn-action-header btn-delete">
                     <i class="fas fa-trash-alt"></i>
                     Delete
                 </button>
@@ -36,14 +36,16 @@
             {{-- Left: Photo & Basic Info --}}
             <div class="detail-left">
                 <div class="detail-photo-card">
-                    <img src="{{ $cat['photo'] }}" alt="{{ $cat['name'] }}" class="detail-photo">
+                    <img src="{{ $cat->photo_url }}" alt="{{ $cat->name }}" class="detail-photo">
                     <div class="detail-basic-info">
-                        <h2 class="detail-name">{{ $cat['name'] }}</h2>
-                        <p class="detail-breed">{{ $cat['breed'] ?? 'Mixed Breed' }}</p>
-                        <div class="detail-gender-badge {{ strtolower($cat['gender']) }}">
-                            <i class="fas fa-{{ $cat['gender'] === 'Male' ? 'mars' : 'venus' }}"></i>
-                            {{ $cat['gender'] }}
+                        <h2 class="detail-name">{{ $cat->name }}</h2>
+                        <p class="detail-breed">{{ $cat->breed ?? 'Mixed Breed' }}</p>
+                        @if($cat->gender)
+                        <div class="detail-gender-badge {{ strtolower($cat->gender) }}">
+                            <i class="fas fa-{{ $cat->gender === 'male' ? 'mars' : 'venus' }}"></i>
+                            {{ ucfirst($cat->gender) }}
                         </div>
+                        @endif
                     </div>
                 </div>
 
@@ -51,41 +53,45 @@
                 <div class="quick-stats-card">
                     <h3 class="stats-title">Quick Stats</h3>
                     
+                    @if($cat->age)
                     <div class="stat-item-detail">
                         <i class="fas fa-birthday-cake"></i>
                         <div>
                             <span class="stat-label">Age</span>
-                            <span class="stat-value">{{ $cat['age'] }}</span>
+                            <span class="stat-value">{{ $cat->age }}</span>
                         </div>
                     </div>
+                    @endif
 
-                    @if(isset($cat['weight']))
+                    @if($cat->weight)
                     <div class="stat-item-detail">
                         <i class="fas fa-weight"></i>
                         <div>
                             <span class="stat-label">Weight</span>
-                            <span class="stat-value">{{ $cat['weight'] }}</span>
+                            <span class="stat-value">{{ $cat->weight }} kg</span>
                         </div>
                     </div>
                     @endif
 
-                    @if(isset($cat['color']))
+                    @if($cat->color)
                     <div class="stat-item-detail">
                         <i class="fas fa-palette"></i>
                         <div>
                             <span class="stat-label">Color</span>
-                            <span class="stat-value">{{ $cat['color'] }}</span>
+                            <span class="stat-value">{{ $cat->color }}</span>
                         </div>
                     </div>
                     @endif
 
+                    @if($cat->date_of_birth)
                     <div class="stat-item-detail">
                         <i class="fas fa-calendar"></i>
                         <div>
                             <span class="stat-label">Birth Date</span>
-                            <span class="stat-value">{{ \Carbon\Carbon::parse($cat['birth_date'])->format('d M Y') }}</span>
+                            <span class="stat-value">{{ $cat->date_of_birth->format('d M Y') }}</span>
                         </div>
                     </div>
+                    @endif
                 </div>
             </div>
 
@@ -93,40 +99,53 @@
             <div class="detail-right">
                 
                 {{-- Medical Information --}}
-                @if(isset($cat['medical_notes']) && !empty($cat['medical_notes']))
+                @if($cat->medical_notes)
                 <div class="info-card">
                     <div class="info-card-header">
                         <i class="fas fa-notes-medical"></i>
                         <h3>Medical Information</h3>
                     </div>
                     <div class="info-card-body">
-                        <p>{{ $cat['medical_notes'] }}</p>
+                        <p>{{ $cat->medical_notes }}</p>
                     </div>
                 </div>
                 @endif
 
                 {{-- Personality --}}
-                @if(isset($cat['personality']) && !empty($cat['personality']))
+                @if($cat->personality_traits)
                 <div class="info-card">
                     <div class="info-card-header">
                         <i class="fas fa-smile"></i>
                         <h3>Personality & Behavior</h3>
                     </div>
                     <div class="info-card-body">
-                        <p>{{ $cat['personality'] }}</p>
+                        <p>{{ $cat->personality_traits }}</p>
                     </div>
                 </div>
                 @endif
 
                 {{-- Special Instructions --}}
-                @if(isset($cat['special_instructions']) && !empty($cat['special_instructions']))
+                @if($cat->care_instructions)
                 <div class="info-card">
                     <div class="info-card-header">
                         <i class="fas fa-clipboard-list"></i>
                         <h3>Special Care Instructions</h3>
                     </div>
                     <div class="info-card-body">
-                        <p>{{ $cat['special_instructions'] }}</p>
+                        <p>{{ $cat->care_instructions }}</p>
+                    </div>
+                </div>
+                @endif
+
+                {{-- Empty State if no additional info --}}
+                @if(!$cat->medical_notes && !$cat->personality_traits && !$cat->care_instructions)
+                <div class="info-card empty-info">
+                    <div class="info-card-body text-center">
+                        <i class="fas fa-info-circle" style="font-size: 3rem; color: #ddd; margin-bottom: 1rem;"></i>
+                        <p style="color: #999;">No additional information available.</p>
+                        <a href="{{ route('my-cats.edit', $cat->id) }}" class="btn-edit" style="margin-top: 1rem; display: inline-block;">
+                            <i class="fas fa-edit"></i> Add More Details
+                        </a>
                     </div>
                 </div>
                 @endif

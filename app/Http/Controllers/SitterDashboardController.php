@@ -2,415 +2,185 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Booking;
+use App\Models\Notification;
+use App\Models\SitterEarning;
+use App\Models\Service;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class SitterDashboardController extends Controller
 {
-    /**
-     * Display the sitter dashboard
-     *
-     * @return \Illuminate\View\View
-     */
     public function index()
     {
-        // Get authenticated sitter info (assuming user has sitter profile)
-        $sitter = [
-            'id' => 1,
-            'name' => 'Sarah Johnson',
-            'email' => 'sarah.johnson@example.com',
-            'avatar' => 'https://ui-avatars.com/api/?name=Sarah+Johnson&background=FF9800&color=fff',
-            'rating' => 4.8,
-            'total_reviews' => 24,
-            'member_since' => '2023-01-15'
-        ];
+        $sitter = Auth::user();
+        $profile = $sitter->sitterProfile;
 
-        // Statistics for dashboard cards
+        // Stats
         $stats = [
-            'total_orders' => 47,
-            'daily_earnings' => 450000,
-            'yesterday_earnings' => 380000,
-            'monthly_earnings' => 8750000,
-            'pending_requests' => 3,
-            'average_rating' => 4.8,
-            'total_reviews' => 24,
-            'completed_bookings' => 42,
-            'active_bookings' => 2,
-            'cancelled_bookings' => 3
+            // 🆕 TRANSAKSI HARI INI (yang sudah bayar)
+            'today_transactions' => Booking::where('sitter_id', $sitter->id)
+                                          ->whereHas('payment', function($q) {
+                                              $q->whereIn('payment_status', ['confirmed', 'held']);
+                                          })
+                                          ->whereDate('created_at', today())
+                                          ->count(),
+            
+            // 🆕 PENDAPATAN HARI INI (net earning setelah potong platform fee)
+            'today_earnings' => Booking::where('sitter_id', $sitter->id)
+                                      ->whereHas('payment', function($q) {
+                                          $q->whereIn('payment_status', ['confirmed', 'held']);
+                                      })
+                                      ->whereDate('created_at', today())
+                                      ->get()
+                                      ->sum(function($booking) {
+                                          return $booking->total_price - $booking->platform_fee;
+                                      }),
+            
+            'total_orders' => $profile->total_bookings,
+            'completed_requests' => $profile->completed_bookings,
+            'pending_requests' => Booking::where('sitter_id', $sitter->id)->where('status', 'pending')->count(),
+            'average_rating' => $profile->rating_average,
+            'total_reviews' => $profile->total_reviews,
         ];
 
-        // Earnings data for period switcher
+        // Earnings data for switcher
+        $today = SitterEarning::where('user_id', $sitter->id)
+                             ->whereDate('created_at', today())
+                             ->sum('net_earning');
+        
+        $yesterday = SitterEarning::where('user_id', $sitter->id)
+                                 ->whereDate('created_at', today()->subDay())
+                                 ->sum('net_earning');
+        
+        $month = SitterEarning::where('user_id', $sitter->id)
+                             ->whereMonth('created_at', now()->month)
+                             ->sum('net_earning');
+
         $earnings_data = [
-            'today' => [
-                'amount' => 450000,
-                'label' => 'Hari Ini',
-                'date' => date('d F Y'),
-                'bookings' => 3
-            ],
-            'yesterday' => [
-                'amount' => 380000,
-                'label' => 'Kemarin',
-                'date' => date('d F Y', strtotime('-1 day')),
-                'bookings' => 2
-            ],
-            'month' => [
-                'amount' => 8750000,
-                'label' => 'Bulan Ini',
-                'date' => date('F Y'),
-                'bookings' => 18
-            ]
+            'today' => $today,
+            'yesterday' => $yesterday,
+            'month' => $month,
         ];
 
-        // Chart data for earnings trend (6 months)
-        $chart_data = [
-            '6_months' => [
-                'labels' => ['Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov'],
-                'data' => [1850000, 2100000, 1950000, 2300000, 2050000, 2200000],
-                'total' => 12450000,
-                'average' => 2075000,
-                'bookings' => [8, 9, 8, 10, 9, 10]
-            ],
-            '12_months' => [
-                'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
-                'data' => [1500000, 1650000, 1800000, 1750000, 1900000, 1850000, 2100000, 1950000, 2300000, 2050000, 2200000, 1800000],
-                'total' => 22850000,
-                'average' => 1904167,
-                'bookings' => [6, 7, 8, 7, 8, 8, 9, 8, 10, 9, 10, 8]
-            ],
-            '3_months' => [
-                'labels' => ['Sep', 'Okt', 'Nov'],
-                'data' => [2300000, 2050000, 2200000],
-                'total' => 6550000,
-                'average' => 2183333,
-                'bookings' => [10, 9, 10]
-            ]
-        ];
+        // Chart data (last 6 months)
+        $chart_data = $this->getChartData($sitter->id, 6);
 
-        // Notifications & Alerts
-        $notifications = [
-            [
-                'id' => 1,
-                'type' => 'new_request',
-                'icon' => 'inbox',
-                'category' => 'request',
-                'user_name' => 'Michael Chen',
-                'user_avatar' => 'https://ui-avatars.com/api/?name=Michael+Chen&background=4CAF50&color=fff',
-                'title' => 'Request Baru dari Michael Chen',
-                'message' => 'Cat Boarding - 3 hari (15-18 Des 2024)',
-                'service' => 'Cat Boarding',
-                'duration' => '3 hari',
-                'date_range' => '15-18 Des 2024',
-                'cats' => '1 kucing (Milo)',
-                'time_ago' => '5 menit yang lalu',
-                'is_new' => true,
-                'is_urgent' => false,
-                'created_at' => now()->subMinutes(5)
-            ],
-            [
-                'id' => 2,
-                'type' => 'new_request',
-                'icon' => 'inbox',
-                'category' => 'request',
-                'user_name' => 'Lisa Anderson',
-                'user_avatar' => 'https://ui-avatars.com/api/?name=Lisa+Anderson&background=2196F3&color=fff',
-                'title' => 'Request Baru dari Lisa Anderson',
-                'message' => 'Daily Visit - 5 hari (20-25 Des 2024)',
-                'service' => 'Daily Visit',
-                'duration' => '5 hari',
-                'date_range' => '20-25 Des 2024',
-                'cats' => '2 kucing (Luna & Max)',
-                'time_ago' => '2 jam yang lalu',
-                'is_new' => true,
-                'is_urgent' => false,
-                'created_at' => now()->subHours(2)
-            ],
-            [
-                'id' => 3,
-                'type' => 'booking_upcoming',
-                'icon' => 'calendar-check',
-                'category' => 'booking',
-                'user_name' => 'Sarah Williams',
-                'user_avatar' => 'https://ui-avatars.com/api/?name=Sarah+Williams&background=FF9800&color=fff',
-                'title' => 'Booking Dimulai Besok!',
-                'message' => 'Sarah Williams - Cat Sitting (1 Des 2024)',
-                'service' => 'Cat Sitting',
-                'date' => '1 Des 2024',
-                'time' => '09:00',
-                'time_ago' => 'Besok, 09:00',
-                'is_new' => false,
-                'is_urgent' => true,
-                'created_at' => now()->subHours(12)
-            ],
-            [
-                'id' => 4,
-                'type' => 'new_review',
-                'icon' => 'star',
-                'category' => 'review',
-                'user_name' => 'David Martinez',
-                'user_avatar' => 'https://ui-avatars.com/api/?name=David+Martinez&background=FFC107&color=fff',
-                'title' => 'Review Baru - Rating 5⭐',
-                'message' => 'David Martinez memberikan review positif',
-                'rating' => 5,
-                'review_text' => 'Excellent service! My cat was very happy and well cared for.',
-                'time_ago' => '1 hari yang lalu',
-                'is_new' => false,
-                'is_urgent' => false,
-                'created_at' => now()->subDay()
-            ],
-            [
-                'id' => 5,
-                'type' => 'booking_today',
-                'icon' => 'clock',
-                'category' => 'booking',
-                'user_name' => 'Emma Thompson',
-                'user_avatar' => 'https://ui-avatars.com/api/?name=Emma+Thompson&background=9C27B0&color=fff',
-                'title' => 'Booking Dimulai Hari Ini!',
-                'message' => 'Emma Thompson - Daily Visit (30 Nov 2024)',
-                'service' => 'Daily Visit',
-                'date' => '30 Nov 2024',
-                'time' => '14:00',
-                'time_ago' => 'Hari ini, 14:00',
-                'is_new' => false,
-                'is_urgent' => true,
-                'created_at' => now()->subHours(6)
-            ]
-        ];
+        // Notifications
+        $notifications = $this->getNotifications($sitter->id);
 
-        // Recent Booking Requests (Top 3 pending)
-        $recent_requests = [
-            [
-                'id' => 1,
-                'booking_code' => 'REQ-2024-001',
-                'user_name' => 'Michael Chen',
-                'user_email' => 'michael.chen@example.com',
-                'user_phone' => '+62 812-3456-7890',
-                'user_avatar' => 'https://ui-avatars.com/api/?name=Michael+Chen&background=4CAF50&color=fff',
-                'service' => 'Cat Boarding',
-                'service_type' => 'boarding',
-                'date_range' => '15-18 Des 2024',
-                'start_date' => '2024-12-15',
-                'end_date' => '2024-12-18',
-                'duration' => '3 hari',
-                'duration_days' => 3,
-                'cats' => [
-                    [
-                        'name' => 'Milo',
-                        'breed' => 'Persian',
-                        'age' => 2,
-                        'gender' => 'Male'
-                    ]
-                ],
-                'cats_count' => 1,
-                'cats_display' => '1 kucing (Milo)',
-                'total_price' => 450000,
-                'notes' => 'Milo suka makanan basah dan perlu dimandikan setiap hari',
-                'status' => 'pending',
-                'created_at' => '2024-11-30 08:30:00',
-                'time_ago' => '2 jam yang lalu'
-            ],
-            [
-                'id' => 2,
-                'booking_code' => 'REQ-2024-002',
-                'user_name' => 'Lisa Anderson',
-                'user_email' => 'lisa.anderson@example.com',
-                'user_phone' => '+62 813-9876-5432',
-                'user_avatar' => 'https://ui-avatars.com/api/?name=Lisa+Anderson&background=2196F3&color=fff',
-                'service' => 'Daily Visit',
-                'service_type' => 'daily_visit',
-                'date_range' => '20-25 Des 2024',
-                'start_date' => '2024-12-20',
-                'end_date' => '2024-12-25',
-                'duration' => '5 hari',
-                'duration_days' => 5,
-                'cats' => [
-                    [
-                        'name' => 'Luna',
-                        'breed' => 'British Shorthair',
-                        'age' => 3,
-                        'gender' => 'Female'
-                    ],
-                    [
-                        'name' => 'Max',
-                        'breed' => 'Maine Coon',
-                        'age' => 1,
-                        'gender' => 'Male'
-                    ]
-                ],
-                'cats_count' => 2,
-                'cats_display' => '2 kucing (Luna & Max)',
-                'total_price' => 750000,
-                'notes' => 'Luna dan Max perlu diberi makan 2x sehari, pagi dan sore',
-                'status' => 'pending',
-                'created_at' => '2024-11-30 06:00:00',
-                'time_ago' => '5 jam yang lalu'
-            ],
-            [
-                'id' => 3,
-                'booking_code' => 'REQ-2024-003',
-                'user_name' => 'John Smith',
-                'user_email' => 'john.smith@example.com',
-                'user_phone' => '+62 821-5555-4444',
-                'user_avatar' => 'https://ui-avatars.com/api/?name=John+Smith&background=FF9800&color=fff',
-                'service' => 'Cat Sitting',
-                'service_type' => 'sitting',
-                'date_range' => '10-12 Des 2024',
-                'start_date' => '2024-12-10',
-                'end_date' => '2024-12-12',
-                'duration' => '2 hari',
-                'duration_days' => 2,
-                'cats' => [
-                    [
-                        'name' => 'Whiskers',
-                        'breed' => 'Siamese',
-                        'age' => 4,
-                        'gender' => 'Male'
-                    ]
-                ],
-                'cats_count' => 1,
-                'cats_display' => '1 kucing (Whiskers)',
-                'total_price' => 300000,
-                'notes' => 'Whiskers sangat aktif, perlu waktu bermain minimal 30 menit sehari',
-                'status' => 'accepted',
-                'accepted_at' => '2024-11-29 15:00:00',
-                'created_at' => '2024-11-29 10:00:00',
-                'time_ago' => '1 hari yang lalu'
-            ]
-        ];
+        // Recent requests
+        $recent_requests = Booking::where('sitter_id', $sitter->id)
+                                 ->where('status', 'pending')
+                                 ->with(['user', 'service', 'bookingCats.cat'])
+                                 ->orderBy('created_at', 'desc')
+                                 ->limit(3)
+                                 ->get()
+                                 ->map(function($booking) {
+                                     $cat = $booking->bookingCats->first();
+                                     
+                                     // Get cat name based on type
+                                     $catName = 'N/A';
+                                     if ($cat) {
+                                         if ($cat->cat_type === 'registered' && $cat->cat) {
+                                             $catName = $cat->cat->name;
+                                         } elseif ($cat->cat_type === 'new') {
+                                             $catName = $cat->new_cat_name;
+                                         }
+                                     }
+                                     
+                                     return [
+                                         'id' => $booking->id,
+                                         'user_name' => $booking->user->name,
+                                         'user_avatar' => $booking->user->avatar_url,
+                                         'service' => $booking->service->name,
+                                         'dates' => $booking->start_date->format('M d') . ' - ' . $booking->end_date->format('M d, Y'),
+                                         'duration' => $booking->duration . ' ' . ($booking->duration > 1 ? 'days' : 'day'),
+                                         'cats' => $catName,
+                                         'status' => $booking->status,
+                                     ];
+                                 });
 
-        // Upcoming Bookings (Next 3 confirmed bookings)
-        $upcoming_bookings = [
-            [
-                'id' => 1,
-                'booking_code' => 'BKG-2024-101',
-                'user_name' => 'Sarah Williams',
-                'user_email' => 'sarah.williams@example.com',
-                'user_phone' => '+62 856-7777-8888',
-                'user_avatar' => 'https://ui-avatars.com/api/?name=Sarah+Williams&background=E91E63&color=fff',
-                'service' => 'Cat Sitting',
-                'service_type' => 'sitting',
-                'start_date' => '2024-12-01',
-                'end_date' => '2024-12-01',
-                'date_display' => '01 Des',
-                'day' => '01',
-                'month' => 'Des',
-                'time' => '09:00 - 18:00',
-                'duration' => '1 hari',
-                'cats' => [
-                    [
-                        'name' => 'Bella',
-                        'breed' => 'Ragdoll',
-                        'age' => 2
-                    ],
-                    [
-                        'name' => 'Charlie',
-                        'breed' => 'Scottish Fold',
-                        'age' => 3
-                    ]
-                ],
-                'cats_display' => 'Bella & Charlie',
-                'location' => 'South Jakarta',
-                'address' => 'Jl. Cipete Raya No. 45, Cipete Selatan',
-                'total_price' => 200000,
-                'status' => 'confirmed',
-                'status_display' => 'Besok',
-                'days_until' => 1
-            ],
-            [
-                'id' => 2,
-                'booking_code' => 'BKG-2024-102',
-                'user_name' => 'David Martinez',
-                'user_email' => 'david.martinez@example.com',
-                'user_phone' => '+62 877-3333-2222',
-                'user_avatar' => 'https://ui-avatars.com/api/?name=David+Martinez&background=00BCD4&color=fff',
-                'service' => 'Cat Boarding',
-                'service_type' => 'boarding',
-                'start_date' => '2024-12-05',
-                'end_date' => '2024-12-08',
-                'date_display' => '05 Des',
-                'day' => '05',
-                'month' => 'Des',
-                'time' => '3 hari',
-                'duration' => '3 hari',
-                'cats' => [
-                    [
-                        'name' => 'Oliver',
-                        'breed' => 'Bengal',
-                        'age' => 1
-                    ]
-                ],
-                'cats_display' => 'Oliver',
-                'location' => 'Central Jakarta',
-                'address' => 'Jl. Sudirman No. 123, Tanah Abang',
-                'total_price' => 450000,
-                'status' => 'confirmed',
-                'status_display' => '5 hari lagi',
-                'days_until' => 5
-            ],
-            [
-                'id' => 3,
-                'booking_code' => 'BKG-2024-103',
-                'user_name' => 'Emma Thompson',
-                'user_email' => 'emma.thompson@example.com',
-                'user_phone' => '+62 888-1111-9999',
-                'user_avatar' => 'https://ui-avatars.com/api/?name=Emma+Thompson&background=673AB7&color=fff',
-                'service' => 'Daily Visit',
-                'service_type' => 'daily_visit',
-                'start_date' => '2024-12-10',
-                'end_date' => '2024-12-15',
-                'date_display' => '10 Des',
-                'day' => '10',
-                'month' => 'Des',
-                'time' => '5 hari',
-                'duration' => '5 hari',
-                'cats' => [
-                    [
-                        'name' => 'Simba',
-                        'breed' => 'Orange Tabby',
-                        'age' => 2
-                    ]
-                ],
-                'cats_display' => 'Simba',
-                'location' => 'North Jakarta',
-                'address' => 'Jl. Kelapa Gading Barat No. 88, Kelapa Gading',
-                'total_price' => 500000,
-                'status' => 'confirmed',
-                'status_display' => '10 hari lagi',
-                'days_until' => 10
-            ]
-        ];
+        // Upcoming bookings
+        $upcoming_bookings = Booking::where('sitter_id', $sitter->id)
+                                   ->whereIn('status', ['confirmed', 'payment_confirmed'])
+                                   ->where('start_date', '>=', now())
+                                   ->with(['user', 'service', 'bookingCats.cat'])
+                                   ->orderBy('start_date', 'asc')
+                                   ->limit(3)
+                                   ->get()
+                                   ->map(function($booking) {
+                                       $cat = $booking->bookingCats->first();
+                                       $daysUntil = now()->diffInDays($booking->start_date);
+                                       
+                                       // Get cat name based on type
+                                       $catName = 'N/A';
+                                       if ($cat) {
+                                           if ($cat->cat_type === 'registered' && $cat->cat) {
+                                               $catName = $cat->cat->name;
+                                           } elseif ($cat->cat_type === 'new') {
+                                               $catName = $cat->new_cat_name;
+                                           }
+                                       }
+                                       
+                                       return [
+                                           'id' => $booking->id,
+                                           'day' => $booking->start_date->format('d'),
+                                           'month' => $booking->start_date->format('M'),
+                                           'user_name' => $booking->user->name,
+                                           'service' => $booking->service->name,
+                                           'time' => $booking->start_date->format('h:i A') . ' - ' . $booking->end_date->format('h:i A'),
+                                           'cats' => $catName,
+                                           'location' => $booking->user->addresses->first()->city ?? 'N/A',
+                                           'status' => $daysUntil === 0 ? 'today' : ($daysUntil === 1 ? 'tomorrow' : 'upcoming'),
+                                           'status_text' => $daysUntil === 0 ? 'Today' : ($daysUntil === 1 ? 'Tomorrow' : "In {$daysUntil} days"),
+                                       ];
+                                   });
 
-        // Quick Actions data
-        $quick_actions = [
-            [
-                'title' => 'View My Schedule',
-                'description' => 'Lihat jadwal booking',
-                'icon' => 'calendar-alt',
-                'route' => 'sitter.schedule',
-                'class' => 'schedule'
-            ],
-            [
-                'title' => 'Edit Services',
-                'description' => 'Kelola layanan Anda',
-                'icon' => 'cog',
-                'route' => 'sitter.services',
-                'class' => 'services'
-            ],
-            [
-                'title' => 'Update Profile',
-                'description' => 'Edit profil sitter',
-                'icon' => 'user-edit',
-                'route' => 'sitter.profile',
-                'class' => 'profile'
-            ],
-            [
-                'title' => 'View Earnings',
-                'description' => 'Lihat detail pendapatan',
-                'icon' => 'chart-line',
-                'route' => 'sitter.earnings',
-                'class' => 'earnings'
-            ]
-        ];
+        // 🆕 Transaction History (Latest Paid Transactions)
+        $transaction_history = Booking::where('sitter_id', $sitter->id)
+                                     ->whereHas('payment', function($q) {
+                                         $q->whereIn('payment_status', ['confirmed', 'held']);
+                                     })
+                                     ->with(['user', 'service', 'bookingCats.cat', 'payment'])
+                                     ->orderBy('created_at', 'desc')
+                                     ->limit(10)
+                                     ->get()
+                                     ->map(function($booking) {
+                                         $cat = $booking->bookingCats->first();
+                                         
+                                         // Get cat name based on type
+                                         $catName = 'N/A';
+                                         if ($cat) {
+                                             if ($cat->cat_type === 'registered' && $cat->cat) {
+                                                 $catName = $cat->cat->name;
+                                             } elseif ($cat->cat_type === 'new') {
+                                                 $catName = $cat->new_cat_name;
+                                             }
+                                         }
+                                         
+                                         return [
+                                             'id' => $booking->id,
+                                             'booking_code' => $booking->booking_code,
+                                             'user_name' => $booking->user->name,
+                                             'user_avatar' => $booking->user->avatar_url,
+                                             'service' => $booking->service->name,
+                                             'cat_name' => $catName,
+                                             'total_cats' => $booking->total_cats,
+                                             'duration' => $booking->duration . ' ' . ($booking->duration > 1 ? 'days' : 'day'),
+                                             'date' => $booking->created_at->format('M d, Y'),
+                                             'start_date' => $booking->start_date->format('M d'),
+                                             'end_date' => $booking->end_date->format('M d, Y'),
+                                             'total_price' => $booking->total_price,
+                                             'platform_fee' => $booking->platform_fee,
+                                             'net_earning' => $booking->total_price - $booking->platform_fee,
+                                             'payment_status' => $booking->payment->payment_status ?? 'pending',
+                                             'payment_method' => $booking->payment->payment_method ?? 'N/A',
+                                             'status' => $booking->status,
+                                         ];
+                                     });
 
-        // Return view with all data
         return view('pages.dashboard_sitter.dashboard', compact(
             'sitter',
             'stats',
@@ -419,116 +189,492 @@ class SitterDashboardController extends Controller
             'notifications',
             'recent_requests',
             'upcoming_bookings',
-            'quick_actions'
+            'transaction_history'
         ));
     }
 
     /**
-     * Accept a booking request
-     *
-     * @param  Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
+     * Get notifications for sitter
      */
-    public function acceptRequest(Request $request, $id)
+    private function getNotifications($sitterId)
     {
-        // Logic untuk accept request
-        // Nanti akan update database
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Request berhasil diterima!',
-            'data' => [
-                'request_id' => $id,
-                'status' => 'accepted',
-                'accepted_at' => now()
-            ]
+        // Check if notifications exist in database
+        $dbNotifications = Notification::where('user_id', $sitterId)
+                                      ->orderBy('created_at', 'desc')
+                                      ->limit(5)
+                                      ->get();
+
+        // If database notifications exist, use them
+        if ($dbNotifications->count() > 0) {
+            return $dbNotifications->map(function($notif) {
+                return [
+                    'title' => $notif->title,
+                    'message' => $notif->message,
+                    'time' => $notif->created_at->diffForHumans(),
+                    'type' => $notif->type,
+                    'is_new' => !$notif->is_read,
+                    'is_urgent' => $notif->is_urgent ?? false,
+                ];
+            });
+        }
+
+        // Otherwise return dummy notifications for demo
+        return collect([
+            [
+                'title' => 'New Booking Request',
+                'message' => 'You have a new booking request',
+                'time' => '5 minutes ago',
+                'type' => 'request',
+                'is_new' => true,
+                'is_urgent' => true,
+            ],
+            [
+                'title' => 'Booking Confirmed',
+                'message' => 'A customer confirmed their booking',
+                'time' => '2 hours ago',
+                'type' => 'booking',
+                'is_new' => true,
+                'is_urgent' => false,
+            ],
+            [
+                'title' => 'New Review',
+                'message' => 'You received a 5-star review',
+                'time' => '1 day ago',
+                'type' => 'review',
+                'is_new' => false,
+                'is_urgent' => false,
+            ],
         ]);
     }
 
     /**
-     * Reject a booking request
-     *
-     * @param  Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
+     * Get chart data for earnings trend
      */
-    public function rejectRequest(Request $request, $id)
+    private function getChartData($sitterId, $months)
     {
-        // Validate rejection reason
-        $request->validate([
-            'reason' => 'required|string|max:500'
-        ]);
-
-        // Logic untuk reject request
-        // Nanti akan update database
+        $data = [];
+        $labels = [];
         
-        return response()->json([
-            'success' => true,
-            'message' => 'Request berhasil ditolak',
-            'data' => [
-                'request_id' => $id,
-                'status' => 'rejected',
-                'reason' => $request->reason,
-                'rejected_at' => now()
-            ]
-        ]);
+        for ($i = $months - 1; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $labels[] = $date->format('M');
+            
+            $earning = SitterEarning::where('user_id', $sitterId)
+                                   ->whereYear('created_at', $date->year)
+                                   ->whereMonth('created_at', $date->month)
+                                   ->sum('net_earning');
+            
+            $data[] = $earning;
+        }
+
+        $total = array_sum($data);
+        $average = $months > 0 ? $total / $months : 0;
+
+        return [
+            'labels' => $labels,
+            'data' => $data,
+            'total' => $total,
+            'average' => round($average),
+        ];
     }
 
     /**
-     * Mark all notifications as read
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function markNotificationsRead()
-    {
-        // Logic untuk mark all notifications as read
-        // Nanti akan update database
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Semua notifikasi telah ditandai dibaca',
-            'data' => [
-                'marked_count' => 5,
-                'marked_at' => now()
-            ]
-        ]);
-    }
-
-    /**
-     * Get earnings data for chart
-     *
-     * @param  Request  $request
-     * @return \Illuminate\Http\JsonResponse
+     * AJAX endpoint for earnings data
      */
     public function getEarningsData(Request $request)
     {
-        $period = $request->input('period', '6'); // 3, 6, or 12 months
+        $period = $request->input('period', '6');
+        $sitterId = Auth::id();
 
-        $chart_data = [
-            '3' => [
-                'labels' => ['Sep', 'Okt', 'Nov'],
-                'data' => [2300000, 2050000, 2200000],
-                'total' => 6550000,
-                'average' => 2183333
-            ],
-            '6' => [
-                'labels' => ['Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov'],
-                'data' => [1850000, 2100000, 1950000, 2300000, 2050000, 2200000],
-                'total' => 12450000,
-                'average' => 2075000
-            ],
-            '12' => [
-                'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
-                'data' => [1500000, 1650000, 1800000, 1750000, 1900000, 1850000, 2100000, 1950000, 2300000, 2050000, 2200000, 1800000],
-                'total' => 22850000,
-                'average' => 1904167
-            ]
+        $chartData = $this->getChartData($sitterId, (int)$period);
+
+        return response()->json($chartData);
+    }
+
+    /**
+     * Services management page
+     */
+    public function services()
+    {
+        $sitter = Auth::user();
+        $profile = $sitter->sitterProfile;
+
+        // Get all services from database
+        $allServices = Service::active()->get();
+
+        $services = $allServices->map(function($service) use ($profile, $sitter) {
+            $offerField = $service->offer_field;
+            $priceField = $service->price_field;
+            $descriptionField = $service->description_field;
+
+            return [
+                'id' => $service->id,
+                'name' => $service->name,
+                'slug' => $service->slug,
+                'icon' => $service->icon_class,
+                'short_description' => $service->short_description,
+                'description' => $profile->{$descriptionField} ?? $service->description,
+                'is_enabled' => $profile->{$offerField} ?? false,
+                'pricing' => [
+                    'base_price' => $profile->{$priceField} ?? 0,
+                ],
+                'total_bookings' => Booking::where('sitter_id', $sitter->id)
+                                          ->where('service_id', $service->id)
+                                          ->count(),
+                'rating' => $profile->rating_average,
+            ];
+        })->toArray();
+
+        return view('pages.dashboard_sitter.services', compact('services', 'sitter'));
+    }
+
+    /**
+     * Update services (toggle or update)
+     */
+    public function updateServices(Request $request)
+    {
+        $sitter = Auth::user();
+        $profile = $sitter->sitterProfile;
+
+        $action = $request->input('action');
+
+        if ($action === 'toggle') {
+            $validated = $request->validate([
+                'service_id' => 'required|integer|exists:services,id',
+            ]);
+
+            $service = Service::findOrFail($validated['service_id']);
+            $offerField = $service->offer_field;
+
+            $profile->update([
+                $offerField => !$profile->{$offerField}
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Service status updated successfully!',
+                'is_enabled' => $profile->{$offerField}
+            ]);
+
+        } elseif ($action === 'update_service') {
+            $validated = $request->validate([
+                'service_id' => 'required|integer|exists:services,id',
+                'description' => 'nullable|string|max:1000',
+                'base_price' => 'required|numeric|min:0',
+            ]);
+
+            $service = Service::findOrFail($validated['service_id']);
+            $priceField = $service->price_field;
+            $descriptionField = $service->description_field;
+            $offerField = $service->offer_field;
+
+            $profile->update([
+                $priceField => $validated['base_price'],
+                $descriptionField => $validated['description'],
+            ]);
+
+            if ($validated['base_price'] > 0 && !$profile->{$offerField}) {
+                $profile->update([
+                    $offerField => true
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'Service updated successfully!');
+        }
+
+        return redirect()->back()->with('error', 'Invalid action');
+    }
+
+    /**
+     * Requests list page
+     */
+    public function requests(Request $request)
+    {
+        $filter = $request->get('filter', 'all');
+        $sitter = Auth::user();
+        
+        $statusMap = [
+            'accepted' => 'confirmed',
+            'rejected' => 'cancelled',
+        ];
+        
+        $query = Booking::where('sitter_id', $sitter->id)
+                       ->with(['user', 'service', 'bookingCats.cat', 'address']);
+
+        if ($filter !== 'all') {
+            $dbStatus = $statusMap[$filter] ?? $filter;
+            $query->where('status', $dbStatus);
+        }
+
+        $requests = $query->orderBy('created_at', 'desc')->get();
+
+        $counts = [
+            'all' => Booking::where('sitter_id', $sitter->id)->count(),
+            'pending' => Booking::where('sitter_id', $sitter->id)->where('status', 'pending')->count(),
+            'accepted' => Booking::where('sitter_id', $sitter->id)->where('status', 'confirmed')->count(),
+            'rejected' => Booking::where('sitter_id', $sitter->id)->where('status', 'cancelled')->count(),
+            'completed' => Booking::where('sitter_id', $sitter->id)->where('status', 'completed')->count(),
         ];
 
-        return response()->json([
-            'success' => true,
-            'data' => $chart_data[$period] ?? $chart_data['6']
+        $transformedRequests = $requests->map(function($booking) {
+            $statusDisplay = $booking->status;
+            if ($booking->status === 'confirmed') {
+                $statusDisplay = 'accepted';
+            } elseif ($booking->status === 'cancelled') {
+                $statusDisplay = 'rejected';
+            }
+            
+            $completedBookings = Booking::where('user_id', $booking->user_id)
+                                       ->where('status', 'completed')
+                                       ->count();
+            
+            $userAddress = $booking->address ?? $booking->user->addresses->where('is_primary', true)->first();
+            
+            return [
+                'id' => $booking->id,
+                'booking_code' => $booking->booking_code,
+                'status' => $statusDisplay,
+                'user' => [
+                    'name' => $booking->user->name,
+                    'avatar' => $booking->user->avatar_url,
+                    'rating' => 5.0,
+                    'total_bookings' => $completedBookings,
+                ],
+                'service' => [
+                    'type' => $booking->service->name,
+                ],
+                'schedule' => [
+                    'start_date' => $booking->start_date,
+                    'end_date' => $booking->end_date,
+                    'duration_text' => $booking->duration . ' ' . ($booking->duration > 1 ? 'days' : 'day'),
+                ],
+                'location' => [
+                    'city' => $userAddress?->city ?? 'Unknown',
+                    'distance' => '5 km',
+                ],
+                'cats' => $booking->bookingCats->map(function($bookingCat) {
+                    if ($bookingCat->cat_type === 'registered' && $bookingCat->cat) {
+                        $cat = $bookingCat->cat;
+                        return [
+                            'name' => $cat->name,
+                            'photo' => $cat->photo_url,
+                            'breed' => $cat->breed ?? 'Mixed Breed',
+                            'gender' => ucfirst($cat->gender ?? 'unknown'),
+                            'age' => $this->calculateAge($cat->date_of_birth),
+                            'weight' => $cat->weight ? $cat->weight . ' kg' : 'N/A',
+                            'special_needs' => $cat->care_instructions ?? null,
+                        ];
+                    } else {
+                        return [
+                            'name' => $bookingCat->new_cat_name ?? 'Unknown',
+                            'photo' => asset('images/default-cat.png'),
+                            'breed' => $bookingCat->new_cat_breed ?? 'Mixed Breed',
+                            'gender' => 'Unknown',
+                            'age' => $bookingCat->new_cat_age ?? 'N/A',
+                            'weight' => 'N/A',
+                            'special_needs' => null,
+                        ];
+                    }
+                }),
+                'pricing' => [
+                    'total_price' => $booking->total_price,
+                    'platform_fee' => $booking->platform_fee,
+                    'your_earning' => $booking->total_price - $booking->platform_fee,
+                ],
+                'notes' => $booking->special_notes,
+                'rejection_reason' => $booking->cancellation_reason ?? null,
+                'review' => null,
+                'time_ago' => $booking->created_at->diffForHumans(),
+            ];
+        });
+
+        return view('pages.dashboard_sitter.requests', [
+            'requests' => $transformedRequests,
+            'filter' => $filter,
+            'counts' => $counts,
         ]);
+    }
+
+    /**
+     * Show single request detail
+     */
+    public function show($id)
+    {
+        $sitter = Auth::user();
+        
+        $booking = Booking::where('sitter_id', $sitter->id)
+                         ->where('id', $id)
+                         ->with(['user.bookingsAsUser', 'service', 'bookingCats.cat', 'address', 'review'])
+                         ->firstOrFail();
+
+        $statusDisplay = $booking->status;
+        if ($booking->status === 'confirmed') {
+            $statusDisplay = 'accepted';
+        } elseif ($booking->status === 'cancelled') {
+            $statusDisplay = 'rejected';
+        }
+
+        $transformedRequest = [
+            'id' => $booking->id,
+            'booking_code' => $booking->booking_code,
+            'status' => $statusDisplay,
+            'user' => [
+                'name' => $booking->user->name,
+                'avatar' => $booking->user->photo ? asset('storage/' . $booking->user->photo) : asset('images/default-avatar.png'),
+                'rating' => $booking->user->rating ?? 5.0,
+                'total_bookings' => $booking->user->bookingsAsUser()->where('status', 'completed')->count(),
+                'member_since' => $booking->user->created_at->format('M Y'),
+                'phone' => $booking->user->phone ?? 'Not provided',
+                'email' => $booking->user->email,
+            ],
+            'service' => [
+                'type' => $booking->service->name,
+                'description' => $booking->service->description ?? '',
+                'add_ons' => [],
+            ],
+            'schedule' => [
+                'start_date' => $booking->start_date,
+                'end_date' => $booking->end_date,
+                'duration_text' => $booking->duration . ' ' . ($booking->duration > 1 ? 'days' : 'day'),
+                'duration_days' => $booking->duration,
+            ],
+            'location' => [
+                'city' => $booking->address->city ?? $booking->user->city ?? 'Unknown',
+                'full_address' => $booking->address ? $booking->address->full_address : 'Address not provided',
+                'distance' => '5 km',
+            ],
+            'cats' => $booking->bookingCats->map(function($bookingCat) {
+                if ($bookingCat->cat_type === 'registered' && $bookingCat->cat) {
+                    $cat = $bookingCat->cat;
+                    return [
+                        'name' => $cat->name,
+                        'photo' => $cat->photo ? asset('storage/' . $cat->photo) : asset('images/default-cat.png'),
+                        'breed' => $cat->breed ?? 'Mixed Breed',
+                        'gender' => ucfirst($cat->gender),
+                        'age' => $cat->age . ' ' . ($cat->age > 1 ? 'years' : 'year'),
+                        'weight' => $cat->weight . ' kg',
+                        'color' => $cat->color ?? 'Not specified',
+                        'vaccinated' => $cat->is_vaccinated ?? false,
+                        'spayed' => $cat->is_neutered ?? false,
+                        'temperament' => $cat->temperament ?? 'Friendly',
+                        'medical_conditions' => $cat->medical_conditions,
+                        'allergies' => $cat->allergies,
+                        'special_needs' => $cat->special_needs,
+                        'diet' => $cat->diet_preferences,
+                        'behavior_notes' => $cat->behavior_notes,
+                    ];
+                } else {
+                    return [
+                        'name' => $bookingCat->new_cat_name ?? 'Unknown',
+                        'photo' => asset('images/default-cat.png'),
+                        'breed' => $bookingCat->new_cat_breed ?? 'Mixed Breed',
+                        'gender' => 'Unknown',
+                        'age' => $bookingCat->new_cat_age ?? 'N/A',
+                        'weight' => 'N/A',
+                        'color' => 'Not specified',
+                        'vaccinated' => false,
+                        'spayed' => false,
+                        'temperament' => 'Unknown',
+                        'medical_conditions' => null,
+                        'allergies' => null,
+                        'special_needs' => null,
+                        'diet' => null,
+                        'behavior_notes' => null,
+                    ];
+                }
+            })->toArray(),
+            'pricing' => [
+                'base_price' => $booking->service_price ?? $booking->total_price,
+                'subtotal' => $booking->subtotal ?? $booking->total_price,
+                'platform_fee' => $booking->platform_fee,
+                'your_earning' => $booking->total_price - $booking->platform_fee,
+                'addons_total' => 0,
+                'cat_multiplier' => count($booking->bookingCats),
+            ],
+            'notes' => $booking->special_notes,
+            'rejection_reason' => $booking->cancel_reason ?? null,
+            'review' => $booking->review ? [
+                'rating' => $booking->review->rating,
+                'comment' => $booking->review->comment,
+                'created_at' => $booking->review->created_at->diffForHumans(),
+                'photos' => [],
+            ] : null,
+            'created_at' => $booking->created_at,
+            'accepted_at' => $booking->confirmed_at ?? null,
+            'rejected_at' => $booking->cancelled_at ?? null,
+            'completed_at' => $booking->completed_at ?? null,
+        ];
+
+        return view('pages.dashboard_sitter.detail-request', ['request' => $transformedRequest]);
+    }
+
+    /**
+     * Accept booking request
+     */
+    public function acceptRequest($id)
+    {
+        $booking = Booking::where('sitter_id', Auth::id())
+                         ->where('id', $id)
+                         ->where('status', 'pending')
+                         ->firstOrFail();
+
+        $booking->update([
+            'status' => 'confirmed',
+            'confirmed_at' => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'Request accepted successfully!');
+    }
+
+    /**
+     * Reject booking request
+     */
+    public function rejectRequest(Request $request, $id)
+    {
+        $request->validate([
+            'reason' => 'required|string|max:500',
+        ]);
+
+        $booking = Booking::where('sitter_id', Auth::id())
+                         ->where('id', $id)
+                         ->where('status', 'pending')
+                         ->firstOrFail();
+
+        $booking->update([
+            'status' => 'cancelled',
+            'cancelled_at' => now(),
+            'cancelled_by' => 'sitter',
+            'cancel_reason' => $request->reason,
+        ]);
+
+        return redirect()->back()->with('success', 'Request rejected.');
+    }
+
+    /**
+     * Calculate age from date of birth
+     */
+    private function calculateAge($dateOfBirth)
+    {
+        if (!$dateOfBirth) {
+            return 'N/A';
+        }
+
+        try {
+            $dob = Carbon::parse($dateOfBirth);
+            $years = $dob->diffInYears(now());
+            $months = $dob->diffInMonths(now()) % 12;
+
+            if ($years > 0) {
+                return $years . ' ' . ($years > 1 ? 'years' : 'year') . 
+                       ($months > 0 ? ', ' . $months . ' ' . ($months > 1 ? 'months' : 'month') : '');
+            } elseif ($months > 0) {
+                return $months . ' ' . ($months > 1 ? 'months' : 'month');
+            } else {
+                $days = $dob->diffInDays(now());
+                return $days . ' ' . ($days > 1 ? 'days' : 'day');
+            }
+        } catch (\Exception $e) {
+            return 'N/A';
+        }
     }
 }

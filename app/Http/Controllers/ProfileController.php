@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Address;
+use App\Models\Review;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -12,18 +17,7 @@ class ProfileController extends Controller
      */
     public function index()
     {
-        // Hardcoded user data
-        $user = [
-            'name' => 'Jeffry Malik',
-            'first_name' => 'Jeffry',
-            'last_name' => 'Malik',
-            'email' => 'jeffrymalik123@gmail.com',
-            'phone' => '+62 812-3456-7890',
-            'bio' => 'Cat owner from Jakarta who loves spending time with furry friends',
-            'role' => 'normal',
-            'photo' => null, // Will show initials
-            'joined' => '15 October 2024',
-        ];
+        $user = Auth::user();
 
         return view('pages.profile.index', compact('user'));
     }
@@ -33,204 +27,193 @@ class ProfileController extends Controller
      */
     public function address()
     {
-        // Hardcoded user data
-        $user = [
-            'name' => 'Jeffry Malik',
-            'first_name' => 'Jeffry',
-            'last_name' => 'Malik',
-            'email' => 'jeffrymalik123@gmail.com',
-            'role' => 'normal',
-            'photo' => null,
-        ];
-
-        // Hardcoded multiple addresses
-        $addresses = [
-            [
-                'id' => 1,
-                'label' => 'Home',
-                'icon' => 'fa-home',
-                'full_address' => 'Jl. Kebon Jeruk No. 123, Kelurahan Kebon Jeruk, Kecamatan Kebon Jeruk',
-                'city' => 'Jakarta Barat',
-                'province' => 'DKI Jakarta',
-                'postal_code' => '11530',
-                'country' => 'Indonesia',
-                'is_primary' => true,
-            ],
-            [
-                'id' => 2,
-                'label' => 'Office',
-                'icon' => 'fa-building',
-                'full_address' => 'Jl. Thamrin No. 8, Menteng',
-                'city' => 'Jakarta Pusat',
-                'province' => 'DKI Jakarta',
-                'postal_code' => '10230',
-                'country' => 'Indonesia',
-                'is_primary' => false,
-            ],
-        ];
+        $user = Auth::user();
+        $addresses = Address::where('user_id', $user->id)->get();
 
         return view('pages.profile.address', compact('user', 'addresses'));
     }
 
     /**
-     * Display My Reviews section (completed bookings only)
+     * Display My Reviews section
      */
     public function reviews()
     {
-        // Hardcoded user data
-        $user = [
-            'name' => 'Jeffry Malik',
-            'first_name' => 'Jeffry',
-            'last_name' => 'Malik',
-            'email' => 'jeffrymalik123@gmail.com',
-            'role' => 'normal',
-            'photo' => null,
-        ];
-
-        // Hardcoded reviews data (from completed bookings)
-        $reviews = [
-            [
-                'id' => 1,
-                'booking_code' => 'BOOK-001',
-                'sitter_name' => 'Sarah Johnson',
-                'sitter_photo' => null,
-                'service_type' => 'Cat Sitting',
-                'rating' => 5,
-                'review' => 'Excellent service! Luna was very happy and well taken care of. Sarah sent me daily updates with photos and videos. I could tell Luna felt comfortable and safe. Highly recommended!',
-                'date' => '2024-11-22',
-                'time_ago' => '3 days ago',
-                'can_edit' => true,
-            ],
-            [
-                'id' => 2,
-                'booking_code' => 'BOOK-002',
-                'sitter_name' => 'Michael Chen',
-                'sitter_photo' => null,
-                'service_type' => 'Grooming',
-                'rating' => 4,
-                'review' => 'Great grooming service! Milo looks amazing and his coat is so shiny now. Michael was professional and gentle with him. Will definitely book again.',
-                'date' => '2024-11-18',
-                'time_ago' => '1 week ago',
-                'can_edit' => false, // Past 7-day edit window
-            ],
-            [
-                'id' => 3,
-                'booking_code' => 'BOOK-003',
-                'sitter_name' => 'Amanda Lee',
-                'sitter_photo' => null,
-                'service_type' => 'Home Visit',
-                'rating' => 5,
-                'review' => 'Amanda was wonderful! She came exactly on time and spent quality time with Whiskers. Left detailed notes about the visit. Very professional and caring.',
-                'date' => '2024-11-10',
-                'time_ago' => '2 weeks ago',
-                'can_edit' => false,
-            ],
-        ];
+        $user = Auth::user();
+        
+        $reviews = Review::where('user_id', $user->id)
+                        ->with(['sitter', 'booking.service'])
+                        ->orderBy('created_at', 'desc')
+                        ->get();
 
         return view('pages.profile.reviews', compact('user', 'reviews'));
     }
 
     /**
-     * Display Notifications section (inbox/history)
+     * Display Notifications section
      */
     public function notifications()
     {
-        // Hardcoded user data
-        $user = [
-            'name' => 'Jeffry Malik',
-            'first_name' => 'Jeffry',
-            'last_name' => 'Malik',
-            'email' => 'jeffrymalik123@gmail.com',
-            'role' => 'normal',
-            'photo' => null,
-        ];
+        $user = Auth::user();
+        
+        $notifications = Notification::where('user_id', $user->id)
+                                    ->orderBy('created_at', 'desc')
+                                    ->get();
 
-        // Hardcoded notifications data
-        $notifications = [
-            [
-                'id' => 1,
-                'type' => 'booking',
-                'icon' => 'fa-calendar-check',
-                'title' => 'Booking Confirmed',
-                'message' => 'Your booking with Sarah Johnson has been confirmed for tomorrow.',
-                'time' => '2 hours ago',
-                'is_read' => false,
-                'link' => '/my-request/1',
-            ],
-            [
-                'id' => 2,
-                'type' => 'payment',
-                'icon' => 'fa-credit-card',
-                'title' => 'Payment Successful',
-                'message' => 'Payment for booking BOOK-001 has been processed successfully.',
-                'time' => 'Yesterday',
-                'is_read' => false,
-                'link' => '/my-request/1',
-            ],
-            [
-                'id' => 3,
-                'type' => 'message',
-                'icon' => 'fa-comment',
-                'title' => 'New Message',
-                'message' => 'Sarah Johnson: "Looking forward to meeting Luna! Any special instructions?"',
-                'time' => 'Yesterday',
-                'is_read' => false,
-                'link' => '/messages/1',
-            ],
-            [
-                'id' => 4,
-                'type' => 'review',
-                'icon' => 'fa-star',
-                'title' => 'Review Reminder',
-                'message' => 'Your booking with Michael Chen is complete. Please leave a review!',
-                'time' => '3 days ago',
-                'is_read' => true,
-                'link' => '/my-request/2',
-            ],
-            [
-                'id' => 5,
-                'type' => 'booking',
-                'icon' => 'fa-calendar-check',
-                'title' => 'Booking Completed',
-                'message' => 'Your booking BOOK-002 with Michael Chen has been completed.',
-                'time' => '1 week ago',
-                'is_read' => true,
-                'link' => '/my-request/2',
-            ],
-            [
-                'id' => 6,
-                'type' => 'message',
-                'icon' => 'fa-comment',
-                'title' => 'New Message',
-                'message' => 'Amanda Lee: "Home visit completed! Whiskers was great today."',
-                'time' => '2 weeks ago',
-                'is_read' => true,
-                'link' => '/messages/3',
-            ],
-        ];
-
-        // Count unread notifications
-        $unreadCount = collect($notifications)->where('is_read', false)->count();
+        $unreadCount = $notifications->where('is_read', false)->count();
 
         return view('pages.profile.notifications', compact('user', 'notifications', 'unreadCount'));
     }
 
     /**
-     * Update profile (placeholder for future)
+     * Update profile
      */
     public function update(Request $request)
     {
-        // TODO: Implement profile update logic
-        return redirect()->route('profile.index')->with('success', 'Profile updated successfully!');
+        $user = Auth::user();
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'phone' => 'nullable|string|max:20',
+            'bio' => 'nullable|string|max:500',
+            'date_of_birth' => 'nullable|date|before:today',
+            'gender' => 'nullable|in:male,female',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        // Handle photo upload
+        if ($request->hasFile('photo')) {
+            // Delete old photo
+            if ($user->photo) {
+                Storage::disk('public')->delete($user->photo);
+            }
+            $validated['photo'] = $request->file('photo')->store('avatars', 'public');
+        }
+
+        $user->update($validated);
+
+        return redirect()->route('profile.index')
+            ->with('success', 'Profile updated successfully!');
     }
 
     /**
-     * Update address (placeholder for future)
+     * Store new address
      */
-    public function updateAddress(Request $request)
+    public function storeAddress(Request $request)
     {
-        // TODO: Implement address update logic
-        return redirect()->route('profile.address')->with('success', 'Address updated successfully!');
+        $validated = $request->validate([
+            'label' => 'required|string|max:100',
+            'full_address' => 'required|string|max:500',
+            'city' => 'required|string|max:100',
+            'province' => 'required|string|max:100',
+            'postal_code' => 'required|string|max:10',
+        ]);
+
+        $validated['user_id'] = Auth::id();
+        
+        // If set_primary is checked or this is the first address
+        if ($request->has('set_primary') || Address::where('user_id', Auth::id())->count() === 0) {
+            // Unset all other primary addresses
+            Address::where('user_id', Auth::id())->update(['is_primary' => false]);
+            $validated['is_primary'] = true;
+        } else {
+            $validated['is_primary'] = false;
+        }
+
+        Address::create($validated);
+
+        return redirect()->route('profile.address')
+            ->with('success', 'Address added successfully!');
+    }
+
+    /**
+     * Update existing address
+     */
+    public function updateAddress(Request $request, $id)
+    {
+        $address = Address::where('id', $id)
+                         ->where('user_id', Auth::id())
+                         ->firstOrFail();
+
+        $validated = $request->validate([
+            'label' => 'required|string|max:100',
+            'full_address' => 'required|string|max:500',
+            'city' => 'required|string|max:100',
+            'province' => 'required|string|max:100',
+            'postal_code' => 'required|string|max:10',
+        ]);
+
+        // Handle primary flag
+        if ($request->has('set_primary')) {
+            Address::where('user_id', Auth::id())->update(['is_primary' => false]);
+            $validated['is_primary'] = true;
+        }
+
+        $address->update($validated);
+
+        return redirect()->route('profile.address')
+            ->with('success', 'Address updated successfully!');
+    }
+
+    /**
+     * Set address as primary
+     */
+    public function setPrimaryAddress($id)
+    {
+        $address = Address::where('id', $id)
+                         ->where('user_id', Auth::id())
+                         ->firstOrFail();
+
+        // Unset all primary
+        Address::where('user_id', Auth::id())->update(['is_primary' => false]);
+        
+        // Set this as primary
+        $address->update(['is_primary' => true]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Primary address updated successfully!'
+        ]);
+    }
+
+    /**
+     * Delete address
+     */
+    public function destroyAddress($id)
+    {
+        $address = Address::where('id', $id)
+                         ->where('user_id', Auth::id())
+                         ->firstOrFail();
+
+        // Prevent deleting primary address
+        if ($address->is_primary) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cannot delete primary address. Please set another address as primary first.'
+            ], 400);
+        }
+
+        $address->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Address deleted successfully!'
+        ]);
+    }
+
+    /**
+     * Get address data for editing
+     */
+    public function getAddress($id)
+    {
+        $address = Address::where('id', $id)
+                         ->where('user_id', Auth::id())
+                         ->firstOrFail();
+
+        return response()->json([
+            'success' => true,
+            'address' => $address
+        ]);
     }
 
     /**
@@ -238,16 +221,15 @@ class ProfileController extends Controller
      */
     public function changePassword(Request $request)
     {
-        // Validate the request
         $request->validate([
             'current_password' => 'required',
             'new_password' => [
                 'required',
                 'min:8',
                 'confirmed',
-                'regex:/[a-z]/',      // must contain at least one lowercase letter
-                'regex:/[A-Z]/',      // must contain at least one uppercase letter
-                'regex:/[0-9]/',      // must contain at least one digit
+                'regex:/[a-z]/',
+                'regex:/[A-Z]/',
+                'regex:/[0-9]/',
             ],
             'new_password_confirmation' => 'required',
         ], [
@@ -256,18 +238,6 @@ class ProfileController extends Controller
             'new_password.confirmed' => 'Password confirmation does not match.',
         ]);
 
-        // TODO: When implementing with real database:
-        // 1. Verify current password matches user's actual password
-        // 2. Hash the new password
-        // 3. Update password in database
-        // 4. Send password change notification email
-        // 5. Log out other sessions (optional)
-
-        // For now, just simulate success
-        // In production, you would do:
-        /*
-        use Illuminate\Support\Facades\Hash;
-        
         $user = Auth::user();
         
         // Check if current password is correct
@@ -277,17 +247,174 @@ class ProfileController extends Controller
         }
         
         // Update password
-        $user->password = Hash::make($request->new_password);
-        $user->save();
-        
-        // Optional: Log out other sessions
-        // Auth::logoutOtherDevices($request->new_password);
-        
-        // Optional: Send email notification
-        // $user->notify(new PasswordChangedNotification());
-        */
+        $user->update([
+            'password' => Hash::make($request->new_password)
+        ]);
 
         return redirect()->route('profile.index')
             ->with('success', 'Password changed successfully!');
+    }
+
+    // ========================================
+    // SITTER PROFILE METHODS
+    // ========================================
+
+    /**
+     * Display profile setup page (for sitters)
+     */
+   /**
+ * Display profile setup page (for sitters)
+ */
+    public function profile()
+    {
+        $user = Auth::user();
+        
+        if (!$user->isSitter()) {
+            return redirect()->route('user.dashboard');
+        }
+
+        $profile = $user->sitterProfile;
+        $addresses = Address::where('user_id', $user->id)->get();
+
+        return view('pages.dashboard_sitter.profile', compact('user', 'profile', 'addresses'));
+    }
+
+    /**
+     * Update sitter profile
+     */
+    /**
+ * Update sitter profile
+ */
+    public function updateSitterProfile(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user->isSitter()) {
+            return redirect()->route('user.dashboard');
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
+            'bio' => 'required|string|max:1000',
+            
+            // Sitter profile
+            'years_of_experience' => 'required|integer|min:0',
+            'home_description' => 'nullable|string|max:1000',
+            'response_time' => 'required|string',
+            'max_cats_accepted' => 'required|integer|min:1',
+            
+            // Availability
+            'is_available' => 'required|boolean',
+        ]);
+
+        // Update user basic info
+        $user->update([
+            'name' => $validated['name'],
+            'phone' => $validated['phone'],
+            'bio' => $validated['bio'],
+        ]);
+
+        // Update sitter profile
+        $user->sitterProfile->update([
+            'years_of_experience' => $validated['years_of_experience'],
+            'home_description' => $validated['home_description'] ?? null,
+            'response_time' => $validated['response_time'],
+            'max_cats_accepted' => $validated['max_cats_accepted'],
+            'is_available' => $validated['is_available'],
+        ]);
+
+        return back()->with('success', 'Profile updated successfully!');
+    }
+
+    /**
+     * Upload avatar for sitter
+     */
+    public function uploadAvatar(Request $request)
+    {
+        $request->validate([
+            'avatar' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        $user = Auth::user();
+
+        // Delete old avatar
+        if ($user->photo) {
+            Storage::disk('public')->delete($user->photo);
+        }
+
+        // Upload new avatar
+        $path = $request->file('avatar')->store('avatars', 'public');
+        
+        $user->update(['photo' => $path]);
+
+        return back()->with('success', 'Avatar updated successfully!');
+    }
+
+    /**
+     * Upload gallery photos for sitter
+     */
+    public function uploadGallery(Request $request)
+    {
+        $request->validate([
+            'photos' => 'required|array|max:10',
+            'photos.*' => 'image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        $user = Auth::user();
+        
+        if (!$user->isSitter()) {
+            return back()->with('error', 'Unauthorized access');
+        }
+        
+        $profile = $user->sitterProfile;
+
+        $photos = $profile->home_photos ?? [];
+
+        foreach ($request->file('photos') as $photo) {
+            $path = $photo->store('gallery', 'public');
+            $photos[] = $path;
+        }
+
+        $profile->update(['home_photos' => $photos]);
+
+        return back()->with('success', 'Photos uploaded successfully!');
+    }
+
+    /**
+     * Delete gallery photo for sitter
+     */
+    public function deleteGallery($index)
+    {
+        $user = Auth::user();
+        
+        if (!$user->isSitter()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+        
+        $profile = $user->sitterProfile;
+        $photos = $profile->home_photos ?? [];
+
+        if (isset($photos[$index])) {
+            // Delete file from storage
+            Storage::disk('public')->delete($photos[$index]);
+            
+            // Remove from array and re-index
+            unset($photos[$index]);
+            $photos = array_values($photos);
+            
+            // Update database
+            $profile->update(['home_photos' => $photos]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Photo deleted successfully!'
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Photo not found'
+        ], 404);
     }
 }

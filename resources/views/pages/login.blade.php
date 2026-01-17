@@ -83,7 +83,7 @@
 
           <button type="submit" class="btn-login">Sign In</button>
 
-          <div class="divider">
+          {{-- <div class="divider">
             <span>or continue with</span>
           </div>
 
@@ -95,7 +95,7 @@
               <path d="M18.1713 8.36796H17.5V8.33337H10V11.6667H14.7096C14.3809 12.5902 13.7889 13.3972 13.0067 13.9879L13.0079 13.9871L15.5871 16.1696C15.4046 16.3354 18.3333 14.1667 18.3333 10C18.3333 9.44129 18.2767 8.89587 18.1713 8.36796Z" fill="#1976D2"/>
             </svg>
             Continue with google
-          </button>
+          </button> --}}
         </form>
       </div>
     </div>

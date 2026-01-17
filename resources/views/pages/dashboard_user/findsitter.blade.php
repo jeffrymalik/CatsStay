@@ -306,7 +306,7 @@
             
             <div class="sitter-card-footer">
                 <a href="{{ url('/sitter/' . $sitter['id']) }}" class="btn-view-profile">View Profile</a>
-                <a href="#" class="btn-book-now">Book Now</a>
+                <a href="{{ url('/booking/create/' . $sitter['id']) }}" class="btn-book-now">Book Now</a>
             </div>
         </div>
         @empty

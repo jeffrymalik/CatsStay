@@ -2,105 +2,90 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Booking;
+use App\Models\Cat;
+use App\Models\Message;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class UserDashboardController extends Controller
 {
-    /**
-     * Display user dashboard
-     */
     public function index()
     {
-        // Get user data
         $user = Auth::user();
 
-        // Stats data (nanti diganti dengan query real dari database)
+        // Get stats from database
         $stats = [
-            'totalBookings' => 12,      // Total all bookings
-            'activeBookings' => 3,       // Currently active bookings
-            'myCats' => 5,               // Total registered cats
-            'unreadMessages' => 2,       // Unread messages count
+            'totalBookings' => Booking::where('user_id', $user->id)->count(),
+            'activeBookings' => Booking::where('user_id', $user->id)
+                ->whereIn('status', ['confirmed', 'payment_confirmed', 'in_progress'])
+                ->count(),
+            'completedBookings' => Booking::where('user_id', $user->id)
+                ->where('status', 'completed')
+                ->count(),
+            'myCats' => Cat::where('user_id', $user->id)->where('is_active', true)->count(),
         ];
 
-        // Upcoming bookings (dummy data - nanti diganti dengan query real)
-        $upcomingBookings = [
-            // Uncomment untuk test dengan data
-            // (object)[
-            //     'id' => 1,
-            //     'start_date' => 'Dec 25, 2024',
-            //     'end_date' => 'Dec 30, 2024',
-            //     'status' => 'confirmed',
-            //     'sitter_name' => 'Anggara',
-            //     'sitter_id' => 1,
-            //     'sitter_photo' => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
-            //     'location' => 'Jakarta Selatan',
-            //     'total_price' => 300000,
-            // ],
-            // (object)[
-            //     'id' => 2,
-            //     'start_date' => 'Jan 5, 2025',
-            //     'end_date' => 'Jan 10, 2025',
-            //     'status' => 'pending',
-            //     'sitter_name' => 'Nazar',
-            //     'sitter_id' => 2,
-            //     'sitter_photo' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop',
-            //     'location' => 'Jakarta Pusat',
-            //     'total_price' => 450000,
-            // ],
-        ];
+        // Get upcoming bookings
+        $upcomingBookings = Booking::where('user_id', $user->id)
+            ->whereIn('status', ['confirmed', 'payment_confirmed'])
+            ->where('start_date', '>=', now())
+            ->with(['sitter.addresses', 'service']) // Load sitter's addresses
+            ->orderBy('start_date', 'asc')
+            ->limit(5)
+            ->get()
+            ->map(function($booking) {
+                return (object)[
+                    'id' => $booking->id,
+                    'start_date' => $booking->start_date->format('M d, Y'),
+                    'end_date' => $booking->end_date->format('M d, Y'),
+                    'status' => $booking->status,
+                    'sitter_name' => $booking->sitter->name,
+                    'sitter_id' => $booking->sitter_id,
+                    'sitter_photo' => $booking->sitter->avatar_url,
+                    'location' => $booking->sitter->addresses->first()->city ?? 'N/A', // Fixed: direct access
+                    'total_price' => $booking->total_price,
+                ];
+            });
 
-        // Pass data ke view
+        // Get recommended sitters
+        $recommendedSitters = User::select('users.*')
+            ->join('pet_sitter_profiles', 'users.id', '=', 'pet_sitter_profiles.user_id')
+            ->where('users.role', 'sitter')
+            ->where('users.status', 'active')
+            ->where('pet_sitter_profiles.is_verified', true)
+            ->where('pet_sitter_profiles.is_available', true)
+            ->with(['sitterProfile', 'addresses'])
+            ->orderByDesc('pet_sitter_profiles.rating_average')
+            ->limit(3)
+            ->get()
+            ->map(function($sitter) {
+                $profile = $sitter->sitterProfile;
+                $address = $sitter->addresses->first();
+                
+                return (object)[
+                    'id' => $sitter->id,
+                    'name' => $sitter->name,
+                    'photo' => $sitter->avatar_url,
+                    'location' => $address->city ?? 'N/A',
+                    'rating' => $profile->rating_average ?? 5.0,
+                    'reviews_count' => $profile->total_reviews ?? 0,
+                    'completed_bookings' => $profile->total_bookings ?? 0,
+                    'experience_years' => $profile->years_of_experience ?? 1,
+                    'price_per_day' => $profile->cat_sitting_price ?? 0,
+                    'is_verified' => $profile->is_verified ?? false,
+                ];
+            });
+
         return view('pages.dashboard_user.dashboard', [
             'user' => $user,
             'totalBookings' => $stats['totalBookings'],
             'activeBookings' => $stats['activeBookings'],
+            'completedBookings' => $stats['completedBookings'],
             'myCats' => $stats['myCats'],
-            'unreadMessages' => $stats['unreadMessages'],
             'upcomingBookings' => $upcomingBookings,
+            'recommendedSitters' => $recommendedSitters,
         ]);
-    }
-
-    /**
-     * Contoh query untuk real data (uncomment nanti setelah database ready)
-     */
-    private function getRealStats()
-    {
-        $user = Auth::user();
-
-        return [
-            // Total bookings user ini
-            // 'totalBookings' => Booking::where('user_id', $user->id)->count(),
-            
-            // Active bookings (status confirmed dan tanggal masih berlangsung)
-            // 'activeBookings' => Booking::where('user_id', $user->id)
-            //     ->where('status', 'confirmed')
-            //     ->where('end_date', '>=', now())
-            //     ->count(),
-            
-            // Total cats registered
-            // 'myCats' => Cat::where('user_id', $user->id)->count(),
-            
-            // Unread messages
-            // 'unreadMessages' => Message::where('receiver_id', $user->id)
-            //     ->where('is_read', false)
-            //     ->count(),
-        ];
-    }
-
-    private function getUpcomingBookings()
-    {
-        $user = Auth::user();
-
-        // Real query (uncomment setelah database ready)
-        // return Booking::where('user_id', $user->id)
-        //     ->whereIn('status', ['confirmed', 'pending'])
-        //     ->where('start_date', '>=', now())
-        //     ->orderBy('start_date', 'asc')
-        //     ->with(['sitter', 'cat'])
-        //     ->limit(5)
-        //     ->get();
-
-        return [];
     }
 }

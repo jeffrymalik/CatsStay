@@ -1,6 +1,6 @@
 /* ========================================
    SITTER DASHBOARD CSS - CATS STAY
-   For Laravel Blade with Main Layout
+   Clean & Stable Version
    ======================================== */
 
 /* ===== DASHBOARD CONTAINER ===== */
@@ -115,7 +115,7 @@
     font-weight: bold;
     color: #333;
     margin-bottom: 12px;
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease;
 }
 
 .stat-footer {
@@ -128,7 +128,9 @@
 }
 
 .stat-badge {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     padding: 4px 12px;
     border-radius: 12px;
     font-size: 12px;
@@ -213,6 +215,11 @@
     font-weight: bold;
 }
 
+.card-header h2 i {
+    color: #FF9800;
+    margin-right: 8px;
+}
+
 .chart-select {
     padding: 8px 16px;
     border: 1px solid #E0E0E0;
@@ -221,6 +228,11 @@
     cursor: pointer;
     color: #666;
     background: white;
+}
+
+.chart-select:focus {
+    outline: none;
+    border-color: #FF9800;
 }
 
 .card-body {
@@ -254,6 +266,7 @@
     font-size: 18px;
     font-weight: bold;
     color: #4CAF50;
+    transition: transform 0.3s ease;
 }
 
 /* ===== QUICK ACTIONS CARD ===== */
@@ -372,6 +385,9 @@
     color: #666;
     cursor: pointer;
     transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .mark-read-btn:hover {
@@ -455,6 +471,9 @@
 .notif-time {
     font-size: 11px;
     color: #999;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .notif-action {
@@ -466,6 +485,7 @@
     font-size: 12px;
     cursor: pointer;
     transition: all 0.3s;
+    font-weight: 600;
 }
 
 .notif-action:hover {
@@ -486,11 +506,14 @@
     font-size: 14px;
     text-decoration: none;
     transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
 }
 
 .view-all-link:hover {
     color: #F57C00;
-    text-decoration: underline;
 }
 
 .request-list {
@@ -536,7 +559,9 @@
 }
 
 .request-status {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     padding: 4px 12px;
     border-radius: 12px;
     font-size: 11px;
@@ -721,9 +746,12 @@
     font-size: 12px;
     font-weight: 600;
     flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
-.booking-status.ongoing {
+.booking-status.tomorrow {
     background: #FFEBEE;
     color: #F44336;
 }
@@ -731,29 +759,6 @@
 .booking-status.upcoming {
     background: #E3F2FD;
     color: #1976D2;
-}
-
-/* ===== ANIMATIONS ===== */
-@keyframes slideIn {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-@keyframes slideOut {
-    from {
-        transform: translateX(0);
-        opacity: 1;
-    }
-    to {
-        transform: translateX(100%);
-        opacity: 0;
-    }
 }
 
 /* ===== RESPONSIVE DESIGN ===== */
@@ -845,5 +850,230 @@
     
     .booking-status {
         align-self: flex-start;
+    }
+}
+
+/* ============================================
+   TRANSACTION HISTORY TABLE
+   ============================================ */
+
+.transaction-history-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    margin-bottom: 24px;
+}
+
+.table-responsive {
+    overflow-x: auto;
+    margin-top: 20px;
+}
+
+.transaction-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1200px;
+}
+
+.transaction-table thead {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.transaction-table th {
+    padding: 16px 12px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 600;
+    color: #495057;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #dee2e6;
+    white-space: nowrap;
+}
+
+.transaction-table tbody tr {
+    border-bottom: 1px solid #f1f3f5;
+    transition: all 0.3s ease;
+}
+
+.transaction-table tbody tr:hover {
+    background: #f8f9fa;
+    transform: scale(1.01);
+}
+
+.transaction-table td {
+    padding: 16px 12px;
+    font-size: 14px;
+    color: #495057;
+    vertical-align: middle;
+}
+
+/* Booking Code */
+.booking-code {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    color: #FF6B35;
+    background: #fff5f2;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+/* Customer Info */
+.customer-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.customer-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e9ecef;
+}
+
+/* Service Name */
+.service-name {
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+/* Cat Info */
+.cat-info-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.cat-name {
+    font-weight: 500;
+    color: #495057;
+}
+
+.cat-count {
+    font-size: 11px;
+    color: #6c757d;
+    background: #e9ecef;
+    padding: 2px 6px;
+    border-radius: 10px;
+    display: inline-block;
+}
+
+/* Schedule & Duration */
+.schedule, .duration {
+    font-size: 13px;
+    color: #495057;
+}
+
+/* Prices */
+.price {
+    font-weight: 600;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.price.total {
+    color: #2c3e50;
+}
+
+.price.fee {
+    color: #dc3545;
+}
+
+.price.earning {
+    color: #28a745;
+}
+
+/* Payment Method */
+.payment-method {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #495057;
+}
+
+.payment-method i {
+    color: #6c757d;
+}
+
+/* Status Badge */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.status-badge.pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-badge.confirmed {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.status-badge.completed {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-badge.cancelled {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* Date */
+.date {
+    font-size: 13px;
+    color: #6c757d;
+}
+
+/* Empty State */
+.empty-state {
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.empty-state i {
+    font-size: 48px;
+    color: #dee2e6;
+    margin-bottom: 16px;
+}
+
+.empty-state p {
+    color: #6c757d;
+    font-size: 16px;
+    margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .transaction-history-card {
+        padding: 16px;
+    }
+
+    .table-responsive {
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .transaction-table th,
+    .transaction-table td {
+        padding: 12px 8px;
+        font-size: 12px;
+    }
+
+    .customer-avatar {
+        width: 32px;
+        height: 32px;
     }
 }

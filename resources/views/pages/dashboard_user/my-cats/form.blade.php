@@ -37,7 +37,7 @@
         @endif
 
         {{-- Form --}}
-        <form action="{{ $isEdit ? route('my-cats.update', $cat['id']) : route('my-cats.store') }}" 
+        <form action="{{ $isEdit ? route('my-cats.update', $cat->id) : route('my-cats.store') }}" 
               method="POST" 
               id="catForm"
               enctype="multipart/form-data">
@@ -56,8 +56,8 @@
                         <label class="section-label">Cat Photo</label>
                         <div class="photo-upload-wrapper">
                             <div class="photo-preview" id="photoPreview">
-                                @if($isEdit && isset($cat['photo']))
-                                <img src="{{ $cat['photo'] }}" alt="Cat photo" id="previewImage">
+                                @if($isEdit && $cat->photo)
+                                <img src="{{ asset('storage/' . $cat->photo) }}" alt="Cat photo" id="previewImage">
                                 @else
                                 <div class="photo-placeholder">
                                     <i class="fas fa-camera"></i>
@@ -75,7 +75,7 @@
                                        name="photo" 
                                        accept="image/*"
                                        style="display: none;">
-                                <button type="button" class="btn-remove-photo" id="removePhotoBtn" style="display: none;">
+                                <button type="button" class="btn-remove-photo" id="removePhotoBtn" style="{{ ($isEdit && $cat->photo) ? '' : 'display: none;' }}">
                                     <i class="fas fa-times"></i>
                                     Remove
                                 </button>
@@ -100,7 +100,7 @@
                                    name="name" 
                                    class="form-input"
                                    placeholder="e.g., Luna"
-                                   value="{{ old('name', $cat['name'] ?? '') }}"
+                                   value="{{ old('name', $isEdit ? $cat->name : '') }}"
                                    required>
                         </div>
 
@@ -114,7 +114,7 @@
                                        name="breed" 
                                        class="form-input"
                                        placeholder="e.g., Persian"
-                                       value="{{ old('breed', $cat['breed'] ?? '') }}">
+                                       value="{{ old('breed', $isEdit ? $cat->breed : '') }}">
                             </div>
 
                             <div class="form-group">
@@ -124,8 +124,8 @@
                                 </label>
                                 <select name="gender" class="form-select" required>
                                     <option value="">Select...</option>
-                                    <option value="Male" {{ old('gender', $cat['gender'] ?? '') === 'Male' ? 'selected' : '' }}>Male</option>
-                                    <option value="Female" {{ old('gender', $cat['gender'] ?? '') === 'Female' ? 'selected' : '' }}>Female</option>
+                                    <option value="male" {{ old('gender', $isEdit ? $cat->gender : '') === 'male' ? 'selected' : '' }}>Male</option>
+                                    <option value="female" {{ old('gender', $isEdit ? $cat->gender : '') === 'female' ? 'selected' : '' }}>Female</option>
                                 </select>
                             </div>
                         </div>
@@ -137,10 +137,10 @@
                                     Birth Date *
                                 </label>
                                 <input type="date" 
-                                       name="birth_date" 
+                                       name="date_of_birth" 
                                        class="form-input"
                                        max="{{ date('Y-m-d') }}"
-                                       value="{{ old('birth_date', $cat['birth_date'] ?? '') }}"
+                                       value="{{ old('date_of_birth', $isEdit && $cat->date_of_birth ? $cat->date_of_birth->format('Y-m-d') : '') }}"
                                        required>
                                 <span class="calculated-age" id="calculatedAge"></span>
                             </div>
@@ -148,13 +148,16 @@
                             <div class="form-group">
                                 <label class="form-label">
                                     <i class="fas fa-weight"></i>
-                                    Weight
+                                    Weight (kg)
                                 </label>
-                                <input type="text" 
+                                <input type="number" 
                                        name="weight" 
                                        class="form-input"
-                                       placeholder="e.g., 4.5 kg"
-                                       value="{{ old('weight', $cat['weight'] ?? '') }}">
+                                       placeholder="e.g., 4.5"
+                                       step="0.1"
+                                       min="0"
+                                       max="50"
+                                       value="{{ old('weight', $isEdit ? $cat->weight : '') }}">
                             </div>
                         </div>
 
@@ -167,7 +170,7 @@
                                    name="color" 
                                    class="form-input"
                                    placeholder="e.g., White with gray patches"
-                                   value="{{ old('color', $cat['color'] ?? '') }}">
+                                   value="{{ old('color', $isEdit ? $cat->color : '') }}">
                         </div>
                     </div>
                 </div>
@@ -191,7 +194,7 @@
                                       class="form-textarea"
                                       rows="4"
                                       maxlength="1000"
-                                      placeholder="Vaccinations, allergies, medications, health conditions...">{{ old('medical_notes', $cat['medical_notes'] ?? '') }}</textarea>
+                                      placeholder="Vaccinations, allergies, medications, health conditions...">{{ old('medical_notes', $isEdit ? $cat->medical_notes : '') }}</textarea>
                             <span class="char-count">
                                 <span id="medicalCount">0</span>/1000 characters
                             </span>
@@ -210,11 +213,11 @@
                                 <i class="fas fa-heart"></i>
                                 Personality Traits
                             </label>
-                            <textarea name="personality" 
+                            <textarea name="personality_traits" 
                                       class="form-textarea"
                                       rows="3"
                                       maxlength="500"
-                                      placeholder="Is your cat shy, playful, energetic, calm...?">{{ old('personality', $cat['personality'] ?? '') }}</textarea>
+                                      placeholder="Is your cat shy, playful, energetic, calm...?">{{ old('personality_traits', $isEdit ? $cat->personality_traits : '') }}</textarea>
                             <span class="char-count">
                                 <span id="personalityCount">0</span>/500 characters
                             </span>
@@ -225,19 +228,19 @@
                     <div class="form-section">
                         <h3 class="section-title">
                             <i class="fas fa-clipboard-list"></i>
-                            Special Instructions
+                            Care Instructions
                         </h3>
 
                         <div class="form-group">
                             <label class="form-label">
                                 <i class="fas fa-star"></i>
-                                Care Instructions
+                                Special Care Instructions
                             </label>
-                            <textarea name="special_instructions" 
+                            <textarea name="care_instructions" 
                                       class="form-textarea"
                                       rows="3"
                                       maxlength="500"
-                                      placeholder="Feeding schedule, favorite toys, things to avoid...">{{ old('special_instructions', $cat['special_instructions'] ?? '') }}</textarea>
+                                      placeholder="Feeding schedule, favorite toys, things to avoid...">{{ old('care_instructions', $isEdit ? $cat->care_instructions : '') }}</textarea>
                             <span class="char-count">
                                 <span id="instructionsCount">0</span>/500 characters
                             </span>

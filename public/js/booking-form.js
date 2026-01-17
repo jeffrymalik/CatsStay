@@ -1,575 +1,565 @@
-// ===================================
-// BOOKING FORM - Complete JavaScript
-// Includes: Service, Cat, Date, Delivery Method, Address, Price Calculator
-// ===================================
+// ============================================
+// BOOKING FORM - FIXED VERSION
+// ============================================
 
 // Global variables
-let selectedServicePrice = 0;
-let selectedServiceName = '';
-let isSingleDayService = false;
-let isHomeVisitService = false;
-let durationDays = 0;
-const platformFeePercent = 5;
-const deliveryFee = 50000; // Fixed Rp 50,000
-let selectedDeliveryMethod = 'dropoff';
+let selectedService = null;
+let selectedPrice = 0;
+let duration = 0;
+let deliveryFee = 0;
+let totalCats = 0;
+let newCatIndex = 1;
 
-// ===================================
-// INITIALIZE ON PAGE LOAD
-// ===================================
+// ============================================
+// INITIALIZATION
+// ============================================
+
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Booking Form loaded');
-    
     initializeServiceSelection();
-    initializeCatTypeToggle();
-    initializeCatSelection();
-    initializeDatePickers();
+    initializeDateSelection();
     initializeDeliveryMethod();
-    initializeAddressSelection();
-    initializeTextareaCounter();
-    initializeFormValidation();
+    initializeSpecialNotes();
+    initializeCatSelection();
+    initializeAddressPreview();
+    initializeFormSubmit();
     
-    // Set initial service (first one is checked by default)
-    const firstService = document.querySelector('input[name="service_type"]:checked');
-    if (firstService) {
-        updateSelectedService(firstService);
-    }
+    // Initial calculation
+    calculateTotalCats();
+    calculatePricing();
 });
 
-// ===================================
+// ============================================
 // SERVICE SELECTION
-// ===================================
+// ============================================
+
 function initializeServiceSelection() {
-    const serviceRadios = document.querySelectorAll('input[name="service_type"]');
+    const serviceInputs = document.querySelectorAll('input[name="service_type"]');
     
-    serviceRadios.forEach(radio => {
-        radio.addEventListener('change', function() {
-            updateSelectedService(this);
-            handleHomeVisitService();
-            calculateTotal();
+    serviceInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            selectedService = this.dataset.name;
+            selectedPrice = parseFloat(this.dataset.price);
+            const isSingleDay = this.dataset.isSingleDay === 'true';
+            const isHomeVisit = this.dataset.isHomeVisit === 'true';
+            
+            // Update summary
+            document.getElementById('summaryService').textContent = selectedService;
+            document.getElementById('summaryPricePerDay').textContent = formatRupiah(selectedPrice);
+            
+            // Handle date fields for single day services
+            const endDateWrapper = document.getElementById('endDateWrapper');
+            const endDateInput = document.getElementById('endDate');
+            const startDateLabel = document.getElementById('startDateLabel');
+            
+            if (isSingleDay) {
+                endDateWrapper.style.display = 'none';
+                endDateInput.removeAttribute('required');
+                startDateLabel.textContent = 'Service Date *';
+                duration = 1;
+            } else {
+                endDateWrapper.style.display = 'block';
+                endDateInput.setAttribute('required', 'required');
+                startDateLabel.textContent = 'Start Date *';
+            }
+            
+            // Handle home visit info
+            const homeVisitInfo = document.getElementById('homeVisitInfo');
+            const dropoffOption = document.getElementById('dropoffOption');
+            const pickupOption = document.getElementById('pickupOption');
+            
+            if (isHomeVisit) {
+                homeVisitInfo.style.display = 'block';
+                dropoffOption.style.display = 'none';
+                pickupOption.querySelector('input').checked = true;
+                deliveryFee = 50000;
+            } else {
+                homeVisitInfo.style.display = 'none';
+                dropoffOption.style.display = 'block';
+            }
+            
+            calculatePricing();
         });
     });
-}
-
-function updateSelectedService(radio) {
-    selectedServicePrice = parseInt(radio.dataset.price);
-    selectedServiceName = radio.dataset.name;
-    isSingleDayService = radio.dataset.singleDay === 'true';
-    isHomeVisitService = radio.dataset.isHomeVisit === 'true';
     
-    // Update summary
-    document.getElementById('summaryService').textContent = selectedServiceName;
-    document.getElementById('summaryPricePerDay').textContent = formatCurrency(selectedServicePrice);
-    
-    // Handle single-day service (e.g., Grooming)
-    const endDateWrapper = document.getElementById('endDateWrapper');
-    const endDateInput = document.getElementById('endDate');
-    const startDateLabel = document.getElementById('startDateLabel');
-    const durationDisplay = document.querySelector('.duration-display');
-    
-    if (isSingleDayService) {
-        endDateWrapper.style.display = 'none';
-        endDateInput.removeAttribute('required');
-        startDateLabel.textContent = 'Select Date *';
-        durationDays = 1;
-        document.getElementById('summaryDuration').textContent = '1 day';
-        
-        const startDate = document.getElementById('startDate').value;
-        if (startDate) {
-            const date = new Date(startDate);
-            durationDisplay.querySelector('span').innerHTML = `<strong>1 day</strong> (${formatDate(date)})`;
-        } else {
-            durationDisplay.querySelector('span').textContent = 'Please select date';
-        }
-        
-        const startDateValue = document.getElementById('startDate').value;
-        if (startDateValue) {
-            endDateInput.value = startDateValue;
-        }
-        
-    } else {
-        endDateWrapper.style.display = 'block';
-        endDateInput.setAttribute('required', 'required');
-        startDateLabel.textContent = 'Start Date *';
-        calculateDuration();
-    }
-    
-    calculateTotal();
-}
-
-// ===================================
-// CAT TYPE TOGGLE
-// ===================================
-function initializeCatTypeToggle() {
-    const toggleOptions = document.querySelectorAll('.toggle-option');
-    const registeredSection = document.getElementById('registeredCatSection');
-    const newSection = document.getElementById('newCatSection');
-    
-    toggleOptions.forEach(option => {
-        option.addEventListener('click', function() {
-            const target = this.dataset.target;
-            
-            toggleOptions.forEach(opt => opt.classList.remove('active'));
-            this.classList.add('active');
-            
-            if (target === 'registered') {
-                registeredSection.style.display = 'block';
-                newSection.style.display = 'none';
-                
-                document.querySelector('input[name="new_cat_name"]').value = '';
-                document.querySelector('input[name="new_cat_breed"]').value = '';
-                document.querySelector('input[name="new_cat_age"]').value = '';
-            } else {
-                registeredSection.style.display = 'none';
-                newSection.style.display = 'block';
-                
-                document.getElementById('registeredCatSelect').value = '';
-                document.getElementById('catPreview').style.display = 'none';
-            }
-        });
-    });
-}
-
-// ===================================
-// CAT SELECTION
-// ===================================
-function initializeCatSelection() {
-    const catSelect = document.getElementById('registeredCatSelect');
-    
-    if (catSelect) {
-        catSelect.addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            const catPreview = document.getElementById('catPreview');
-            
-            if (this.value) {
-                const catPhoto = selectedOption.dataset.photo;
-                const catText = selectedOption.textContent;
-                const catName = catText.split(' (')[0];
-                const catDetails = catText.match(/\(([^)]+)\)/)[1];
-                
-                document.getElementById('catPreviewImg').src = catPhoto;
-                document.getElementById('catPreviewName').textContent = catName;
-                document.getElementById('catPreviewDetails').textContent = catDetails;
-                
-                catPreview.style.display = 'flex';
-            } else {
-                catPreview.style.display = 'none';
-            }
-        });
+    // Set initial service
+    const checkedService = document.querySelector('input[name="service_type"]:checked');
+    if (checkedService) {
+        selectedService = checkedService.dataset.name;
+        selectedPrice = parseFloat(checkedService.dataset.price);
     }
 }
 
-// ===================================
-// DATE PICKERS & DURATION
-// ===================================
-function initializeDatePickers() {
+// ============================================
+// DATE SELECTION
+// ============================================
+
+function initializeDateSelection() {
     const startDateInput = document.getElementById('startDate');
     const endDateInput = document.getElementById('endDate');
     
-    const today = new Date().toISOString().split('T')[0];
-    startDateInput.setAttribute('min', today);
-    endDateInput.setAttribute('min', today);
-    
     startDateInput.addEventListener('change', function() {
-        if (isSingleDayService) {
-            endDateInput.value = this.value;
-            durationDays = 1;
-            
-            const date = new Date(this.value);
-            document.getElementById('durationText').innerHTML = `<strong>1 day</strong> (${formatDate(date)})`;
-            document.getElementById('summaryDuration').textContent = '1 day';
-            
-            calculateTotal();
-        } else {
-            endDateInput.setAttribute('min', this.value);
-            
-            if (endDateInput.value && endDateInput.value < this.value) {
-                endDateInput.value = '';
-            }
-            
-            calculateDuration();
-        }
+        endDateInput.min = this.value;
+        calculateDuration();
     });
     
     endDateInput.addEventListener('change', function() {
-        if (!isSingleDayService) {
-            calculateDuration();
-        }
+        calculateDuration();
     });
 }
 
 function calculateDuration() {
-    if (isSingleDayService) return;
-    
-    const startDate = document.getElementById('startDate').value;
-    const endDate = document.getElementById('endDate').value;
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
     const durationText = document.getElementById('durationText');
-    const summaryDuration = document.getElementById('summaryDuration');
+    const checkedService = document.querySelector('input[name="service_type"]:checked');
+    const isSingleDay = checkedService ? checkedService.dataset.isSingleDay === 'true' : false;
     
-    if (startDate && endDate) {
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-        const diffTime = Math.abs(end - start);
-        durationDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    if (isSingleDay) {
+        duration = 1;
+        durationText.textContent = '1 day';
+        document.getElementById('summaryDuration').textContent = '1 day';
+    } else if (startDateInput.value && endDateInput.value) {
+        const startDate = new Date(startDateInput.value);
+        const endDate = new Date(endDateInput.value);
+        const diffTime = Math.abs(endDate - startDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
         
-        const durationString = durationDays + (durationDays === 1 ? ' day' : ' days');
-        durationText.innerHTML = `<strong>${durationString}</strong> (${formatDate(start)} - ${formatDate(end)})`;
-        summaryDuration.textContent = durationString;
-        
-        calculateTotal();
+        duration = diffDays;
+        durationText.textContent = `${diffDays} day${diffDays > 1 ? 's' : ''}`;
+        document.getElementById('summaryDuration').textContent = `${diffDays} day${diffDays > 1 ? 's' : ''}`;
+    } else if (startDateInput.value) {
+        duration = 1;
+        durationText.textContent = '1 day';
+        document.getElementById('summaryDuration').textContent = '1 day';
     } else {
+        duration = 0;
         durationText.textContent = 'Please select dates';
-        summaryDuration.textContent = '0 days';
-        durationDays = 0;
-        calculateTotal();
+        document.getElementById('summaryDuration').textContent = '0 days';
     }
+    
+    calculatePricing();
 }
 
-// ===================================
+// ============================================
 // DELIVERY METHOD
-// ===================================
+// ============================================
+
 function initializeDeliveryMethod() {
-    const deliveryRadios = document.querySelectorAll('input[name="delivery_method"]');
-    const sitterAddressBox = document.getElementById('sitterAddressBox');
-    const userAddressSelection = document.getElementById('userAddressSelection');
+    const deliveryInputs = document.querySelectorAll('input[name="delivery_method"]');
     
-    deliveryRadios.forEach(radio => {
-        radio.addEventListener('change', function() {
-            selectedDeliveryMethod = this.value;
+    deliveryInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            const userAddressSelection = document.getElementById('userAddressSelection');
+            const summaryDeliveryItem = document.getElementById('summaryDeliveryItem');
             
-            if (this.value === 'dropoff') {
-                if (sitterAddressBox) sitterAddressBox.style.display = 'block';
-                if (userAddressSelection) userAddressSelection.style.display = 'none';
-                
-                const addressSelect = document.getElementById('userAddressSelect');
-                if (addressSelect) addressSelect.removeAttribute('required');
-                
-            } else if (this.value === 'pickup') {
-                if (sitterAddressBox) sitterAddressBox.style.display = 'none';
-                if (userAddressSelection) userAddressSelection.style.display = 'block';
-                
-                const addressSelect = document.getElementById('userAddressSelect');
-                if (addressSelect) addressSelect.setAttribute('required', 'required');
+            if (this.value === 'pickup') {
+                deliveryFee = 50000;
+                if (userAddressSelection) {
+                    userAddressSelection.style.display = 'block';
+                }
+                summaryDeliveryItem.style.display = 'flex';
+            } else {
+                deliveryFee = 0;
+                if (userAddressSelection) {
+                    userAddressSelection.style.display = 'none';
+                }
+                summaryDeliveryItem.style.display = 'none';
             }
             
-            calculateTotal();
+            calculatePricing();
         });
     });
     
-    // Check initial service for Home Visit
-    const checkedService = document.querySelector('input[name="service_type"]:checked');
-    if (checkedService) {
-        isHomeVisitService = checkedService.dataset.isHomeVisit === 'true';
-        handleHomeVisitService();
+    // Set initial delivery fee
+    const checkedDelivery = document.querySelector('input[name="delivery_method"]:checked');
+    if (checkedDelivery && checkedDelivery.value === 'pickup') {
+        deliveryFee = 50000;
+        document.getElementById('summaryDeliveryItem').style.display = 'flex';
     }
 }
 
-function handleHomeVisitService() {
-    const dropoffOption = document.getElementById('dropoffOption');
-    const pickupOption = document.getElementById('pickupOption');
-    const homeVisitInfo = document.getElementById('homeVisitInfo');
-    const dropoffRadio = document.querySelector('input[name="delivery_method"][value="dropoff"]');
-    const pickupRadio = document.querySelector('input[name="delivery_method"][value="pickup"]');
-    
-    if (isHomeVisitService) {
-        // Home Visit: Only pickup available
-        if (dropoffOption) {
-            dropoffOption.style.display = 'none';
-            if (dropoffRadio) dropoffRadio.disabled = true;
-        }
-        
-        if (pickupRadio) {
-            pickupRadio.checked = true;
-            pickupRadio.disabled = false;
-        }
-        
-        if (homeVisitInfo) homeVisitInfo.style.display = 'flex';
-        
-        const userAddressSelection = document.getElementById('userAddressSelection');
-        if (userAddressSelection) userAddressSelection.style.display = 'block';
-        
-        const addressSelect = document.getElementById('userAddressSelect');
-        if (addressSelect) addressSelect.setAttribute('required', 'required');
-        
-        selectedDeliveryMethod = 'pickup';
-        
-    } else {
-        // Cat Sitting & Grooming: Both options available
-        if (dropoffOption) {
-            dropoffOption.style.display = 'block';
-            if (dropoffRadio) dropoffRadio.disabled = false;
-        }
-        
-        if (pickupRadio) pickupRadio.disabled = false;
-        if (homeVisitInfo) homeVisitInfo.style.display = 'none';
-        
-        if (dropoffRadio && !pickupRadio.checked) {
-            dropoffRadio.checked = true;
-            selectedDeliveryMethod = 'dropoff';
-            
-            const userAddressSelection = document.getElementById('userAddressSelection');
-            if (userAddressSelection) userAddressSelection.style.display = 'none';
-            
-            const addressSelect = document.getElementById('userAddressSelect');
-            if (addressSelect) addressSelect.removeAttribute('required');
-        }
-    }
-    
-    calculateTotal();
-}
-
-// ===================================
-// ADDRESS SELECTION
-// ===================================
-function initializeAddressSelection() {
-    const addressSelect = document.getElementById('userAddressSelect');
-    const addressPreview = document.getElementById('addressPreview');
-    
-    if (addressSelect) {
-        addressSelect.addEventListener('change', function() {
+function initializeAddressPreview() {
+    const userAddressSelect = document.getElementById('userAddressSelect');
+    if (userAddressSelect) {
+        userAddressSelect.addEventListener('change', function() {
             const selectedOption = this.options[this.selectedIndex];
+            const addressPreview = document.getElementById('addressPreview');
             
             if (this.value) {
-                const optionText = selectedOption.textContent;
-                const parts = optionText.split(' - ');
-                const label = parts[0];
-                const fullAddress = parts[1] || optionText;
+                const label = selectedOption.dataset.label;
+                const address = selectedOption.dataset.address;
                 
                 document.getElementById('addressPreviewLabel').textContent = label;
-                document.getElementById('addressPreviewText').textContent = fullAddress;
-                
-                if (addressPreview) addressPreview.style.display = 'block';
+                document.getElementById('addressPreviewText').textContent = address;
+                addressPreview.style.display = 'block';
             } else {
-                if (addressPreview) addressPreview.style.display = 'none';
+                addressPreview.style.display = 'none';
             }
         });
     }
 }
 
-// ===================================
-// PRICE CALCULATOR (with Delivery Fee)
-// ===================================
-function calculateTotal() {
-    const subtotal = selectedServicePrice * durationDays;
-    
-    let totalDeliveryFee = 0;
-    if (selectedDeliveryMethod === 'pickup') {
-        totalDeliveryFee = deliveryFee;
-    }
-    
-    const subtotalWithDelivery = subtotal + totalDeliveryFee;
-    const platformFee = Math.round(subtotalWithDelivery * (platformFeePercent / 100));
-    const total = subtotalWithDelivery + platformFee;
-    
-    document.getElementById('summarySubtotal').textContent = formatCurrency(subtotal);
-    
-    const deliveryItem = document.getElementById('summaryDeliveryItem');
-    if (totalDeliveryFee > 0) {
-        deliveryItem.style.display = 'flex';
-        document.getElementById('summaryDeliveryFee').textContent = formatCurrency(totalDeliveryFee);
-    } else {
-        deliveryItem.style.display = 'none';
-    }
-    
-    document.getElementById('summaryPlatformFee').textContent = formatCurrency(platformFee);
-    document.getElementById('summaryTotal').textContent = formatCurrency(total);
-}
+// ============================================
+// CAT SELECTION (MULTIPLE CATS)
+// ============================================
 
-// ===================================
-// TEXTAREA CHARACTER COUNTER
-// ===================================
-function initializeTextareaCounter() {
-    const textarea = document.querySelector('textarea[name="special_notes"]');
-    const charCount = document.querySelector('.char-count');
-    
-    if (textarea && charCount) {
-        textarea.addEventListener('input', function() {
-            const currentLength = this.value.length;
-            const maxLength = this.getAttribute('maxlength');
-            charCount.textContent = `${currentLength}/${maxLength} characters`;
+function initializeCatSelection() {
+    // Registered cats checkboxes
+    const catCheckboxes = document.querySelectorAll('#catsGrid input[type="checkbox"]');
+    catCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            updateCatsSelection();
         });
+    });
+    
+    // Cat type toggle
+    const catTypeInputs = document.querySelectorAll('input[name="cat_type"]');
+    catTypeInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            toggleCatType();
+        });
+    });
+    
+    // Initialize cat cards selection state
+    document.querySelectorAll('#catsGrid input[type="checkbox"]:checked').forEach(checkbox => {
+        checkbox.closest('.cat-card').classList.add('selected');
+    });
+    
+    // Initialize selected cats preview
+    updateCatsSelection();
+}
+
+function toggleCatType() {
+    const catType = document.querySelector('input[name="cat_type"]:checked').value;
+    const registeredSection = document.getElementById('registeredCatSection');
+    const newSection = document.getElementById('newCatSection');
+    
+    if (catType === 'registered') {
+        registeredSection.style.display = 'block';
+        newSection.style.display = 'none';
+        
+        // DISABLE new cat inputs to prevent validation
+        const newCatInputs = newSection.querySelectorAll('input[name^="new_cats"]');
+        newCatInputs.forEach(input => {
+            input.removeAttribute('required');
+            input.disabled = true;
+        });
+        
+        // ENABLE registered cat checkboxes
+        const registeredInputs = registeredSection.querySelectorAll('input[name="registered_cat_ids[]"]');
+        registeredInputs.forEach(input => {
+            input.disabled = false;
+        });
+        
+        // Update toggle button styles
+        document.querySelector('.toggle-option[data-target="registered"]').classList.add('active');
+        document.querySelector('.toggle-option[data-target="new"]').classList.remove('active');
+    } else {
+        registeredSection.style.display = 'none';
+        newSection.style.display = 'block';
+        
+        // DISABLE registered cat checkboxes
+        const registeredInputs = registeredSection.querySelectorAll('input[name="registered_cat_ids[]"]');
+        registeredInputs.forEach(input => {
+            input.disabled = true;
+            input.checked = false;
+        });
+        
+        // ENABLE new cat inputs and add required to name fields
+        const newCatInputs = newSection.querySelectorAll('input[name^="new_cats"]');
+        newCatInputs.forEach(input => {
+            input.disabled = false;
+            // Add required only to name fields
+            if (input.name.includes('[name]')) {
+                input.setAttribute('required', 'required');
+            }
+        });
+        
+        // Update toggle button styles
+        document.querySelector('.toggle-option[data-target="registered"]').classList.remove('active');
+        document.querySelector('.toggle-option[data-target="new"]').classList.add('active');
+    }
+    
+    calculateTotalCats();
+}
+
+function toggleCatSelection(card) {
+    const checkbox = card.querySelector('input[type="checkbox"]');
+    if (checkbox.checked) {
+        card.classList.add('selected');
+    } else {
+        card.classList.remove('selected');
     }
 }
 
-// ===================================
-// FORM VALIDATION
-// ===================================
-function initializeFormValidation() {
+function updateCatsSelection() {
+    const checkboxes = document.querySelectorAll('#catsGrid input[type="checkbox"]:checked');
+    const preview = document.getElementById('selectedCatsPreview');
+    const list = document.getElementById('selectedCatsList');
+    const count = document.getElementById('selectedCatsCount');
+    
+    if (checkboxes.length > 0) {
+        preview.style.display = 'block';
+        count.textContent = checkboxes.length;
+        
+        list.innerHTML = '';
+        checkboxes.forEach(checkbox => {
+            const name = checkbox.dataset.name;
+            const tag = document.createElement('div');
+            tag.className = 'selected-cat-tag';
+            tag.innerHTML = `<i class="fas fa-check-circle"></i> ${name}`;
+            list.appendChild(tag);
+        });
+    } else {
+        preview.style.display = 'none';
+    }
+    
+    calculateTotalCats();
+}
+
+function calculateTotalCats() {
+    const catType = document.querySelector('input[name="cat_type"]:checked')?.value;
+    
+    if (catType === 'registered') {
+        totalCats = document.querySelectorAll('#catsGrid input[type="checkbox"]:checked').length;
+    } else if (catType === 'new') {
+        totalCats = document.querySelectorAll('.new-cat-item').length;
+    } else {
+        totalCats = 0;
+    }
+    
+    // Update summary
+    updateCatsSummary();
+    calculatePricing();
+}
+
+function updateCatsSummary() {
+    const summaryTotalCats = document.getElementById('summaryTotalCats');
+    const catsCountBadge = document.getElementById('catsCountBadge');
+    
+    summaryTotalCats.textContent = totalCats;
+    
+    if (totalCats > 0) {
+        catsCountBadge.style.display = 'inline-block';
+        catsCountBadge.textContent = `${totalCats} cat${totalCats > 1 ? 's' : ''}`;
+    } else {
+        catsCountBadge.style.display = 'none';
+    }
+}
+
+// ============================================
+// NEW CAT FORM MANAGEMENT
+// ============================================
+
+function addNewCatForm() {
+    const container = document.getElementById('newCatsContainer');
+    const newForm = document.createElement('div');
+    newForm.className = 'new-cat-item';
+    newForm.dataset.index = newCatIndex;
+    
+    // Check if new cat section is visible
+    const catType = document.querySelector('input[name="cat_type"]:checked').value;
+    const shouldBeDisabled = catType !== 'new';
+    
+    newForm.innerHTML = `
+        <button type="button" class="remove-cat-btn" onclick="removeCatForm(this)">
+            <i class="fas fa-times"></i>
+        </button>
+        <h4>Cat #${newCatIndex + 1}</h4>
+        <div class="form-group">
+            <label class="form-label">
+                <i class="fas fa-cat"></i>
+                Cat Name *
+            </label>
+            <input type="text" 
+                   name="new_cats[${newCatIndex}][name]" 
+                   class="form-input" 
+                   placeholder="e.g., Luna"
+                   ${shouldBeDisabled ? '' : 'required'}
+                   ${shouldBeDisabled ? 'disabled' : ''}>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-paw"></i>
+                    Breed (Optional)
+                </label>
+                <input type="text" 
+                       name="new_cats[${newCatIndex}][breed]" 
+                       class="form-input" 
+                       placeholder="e.g., Persian"
+                       ${shouldBeDisabled ? 'disabled' : ''}>
+            </div>
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-birthday-cake"></i>
+                    Age (Optional)
+                </label>
+                <input type="text" 
+                       name="new_cats[${newCatIndex}][age]" 
+                       class="form-input" 
+                       placeholder="e.g., 2 years"
+                       ${shouldBeDisabled ? 'disabled' : ''}>
+            </div>
+        </div>
+    `;
+    container.appendChild(newForm);
+    newCatIndex++;
+    calculateTotalCats();
+}
+
+function removeCatForm(btn) {
+    const items = document.querySelectorAll('.new-cat-item');
+    if (items.length > 1) {
+        btn.closest('.new-cat-item').remove();
+        calculateTotalCats();
+        
+        // Renumber cats
+        const remainingItems = document.querySelectorAll('.new-cat-item');
+        remainingItems.forEach((item, index) => {
+            item.querySelector('h4').textContent = `Cat #${index + 1}`;
+        });
+    } else {
+        showError('You must have at least one cat for the booking.');
+    }
+}
+
+// ============================================
+// SPECIAL NOTES
+// ============================================
+
+function initializeSpecialNotes() {
+    const specialNotes = document.getElementById('specialNotes');
+    const notesCount = document.getElementById('notesCount');
+    
+    if (specialNotes && notesCount) {
+        specialNotes.addEventListener('input', function() {
+            notesCount.textContent = this.value.length;
+        });
+        
+        // Set initial count
+        notesCount.textContent = specialNotes.value.length;
+    }
+}
+
+// ============================================
+// PRICE CALCULATION
+// ============================================
+
+function calculatePricing() {
+    // Service price = price per day × duration × number of cats
+    const servicePrice = selectedPrice * duration * totalCats;
+    
+    // Subtotal = service price + delivery fee
+    const subtotal = servicePrice + deliveryFee;
+    
+    // Platform fee = 5% of subtotal
+    const platformFee = subtotal * 0.05;
+    
+    // Total = subtotal + platform fee
+    const total = subtotal + platformFee;
+    
+    // Update summary
+    document.getElementById('summarySubtotal').textContent = formatRupiah(servicePrice);
+    document.getElementById('summaryDeliveryFee').textContent = formatRupiah(deliveryFee);
+    document.getElementById('summaryPlatformFee').textContent = formatRupiah(platformFee);
+    document.getElementById('summaryTotal').textContent = formatRupiah(total);
+}
+
+// ============================================
+// FORM SUBMISSION
+// ============================================
+
+function initializeFormSubmit() {
     const form = document.getElementById('bookingForm');
     
     if (form) {
         form.addEventListener('submit', function(e) {
-            clearFormErrors();
-            
-            let errors = [];
-            
-            // Validate service
-            const serviceSelected = document.querySelector('input[name="service_type"]:checked');
-            if (!serviceSelected) {
-                errors.push('Please select a service');
+            // Clear any previous error messages
+            const formMessages = document.getElementById('formMessages');
+            if (formMessages) {
+                formMessages.innerHTML = '';
             }
             
-            // Validate cat selection
-            const catType = document.querySelector('input[name="cat_type"]:checked').value;
+            // Additional validation (optional - browser will handle required fields)
+            const catType = document.querySelector('input[name="cat_type"]:checked')?.value;
             
             if (catType === 'registered') {
-                const registeredCatId = document.querySelector('select[name="registered_cat_id"]').value;
-                if (!registeredCatId) {
-                    errors.push('Please select a cat from your registered cats');
-                    markFieldError('registeredCatSelect');
-                }
-            } else if (catType === 'new') {
-                const newCatName = document.querySelector('input[name="new_cat_name"]').value.trim();
-                if (!newCatName) {
-                    errors.push('Please enter your cat\'s name');
-                    markFieldError('input[name="new_cat_name"]');
+                const selectedCats = document.querySelectorAll('#catsGrid input[type="checkbox"]:checked:not(:disabled)');
+                if (selectedCats.length === 0) {
+                    e.preventDefault();
+                    showError('Please select at least one cat for this booking.');
+                    scrollToSection('registeredCatSection');
+                    return false;
                 }
             }
             
-            // Validate dates
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-            
-            if (!startDate) {
-                errors.push('Please select a date');
-                markFieldError('startDate');
-            }
-            
-            if (!isSingleDayService) {
-                if (!endDate) {
-                    errors.push('Please select an end date');
-                    markFieldError('endDate');
-                }
-                
-                if (startDate && endDate && new Date(endDate) < new Date(startDate)) {
-                    errors.push('End date must be after start date');
-                    markFieldError('endDate');
-                }
-            }
-            
-            // Validate delivery method
-            const deliveryMethod = document.querySelector('input[name="delivery_method"]:checked');
-            if (!deliveryMethod) {
-                errors.push('Please select a delivery method');
-            }
-            
-            // Validate address for pickup
-            if (deliveryMethod && deliveryMethod.value === 'pickup') {
-                const addressSelect = document.getElementById('userAddressSelect');
-                if (addressSelect && !addressSelect.value) {
-                    errors.push('Please select your address for pick-up service');
-                    markFieldError('userAddressSelect');
-                }
-            }
-            
-            // Validate terms
-            const termsAccepted = document.querySelector('input[name="terms_accepted"]').checked;
-            if (!termsAccepted) {
-                errors.push('Please accept the Terms of Service and Cancellation Policy');
-            }
-            
-            // If errors, prevent submission
-            if (errors.length > 0) {
+            if (totalCats === 0) {
                 e.preventDefault();
-                showFormErrors(errors);
+                showError('Please select or add at least one cat for this booking.');
+                scrollToSection('registeredCatSection');
                 return false;
             }
             
-            // Show loading state
-            const submitBtn = document.querySelector('.btn-confirm-booking');
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-            submitBtn.disabled = true;
-            
-            return true;
+            // Form will submit naturally
         });
     }
 }
 
-function showFormErrors(errors) {
-    const messagesContainer = document.getElementById('formMessages');
-    
-    let errorHTML = `
-        <div class="error-message">
-            <i class="fas fa-exclamation-circle"></i>
-            <div>
-                <p><strong>Please fix the following errors:</strong></p>
-                <ul style="margin: 8px 0 0 0; padding-left: 20px;">
-    `;
-    
-    errors.forEach(error => {
-        errorHTML += `<li>${error}</li>`;
-    });
-    
-    errorHTML += `
-                </ul>
-            </div>
-        </div>
-    `;
-    
-    messagesContainer.innerHTML = errorHTML;
-    messagesContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-function clearFormErrors() {
-    const messagesContainer = document.getElementById('formMessages');
-    messagesContainer.innerHTML = '';
-    
-    document.querySelectorAll('.field-error').forEach(field => {
-        field.classList.remove('field-error');
-    });
-    
-    document.querySelectorAll('.field-error-text').forEach(text => {
-        text.remove();
-    });
-}
-
-function markFieldError(fieldIdentifier) {
-    const field = typeof fieldIdentifier === 'string' 
-        ? document.getElementById(fieldIdentifier) || document.querySelector(fieldIdentifier)
-        : fieldIdentifier;
-    
-    if (field) {
-        field.classList.add('field-error');
-    }
-}
-
-// ===================================
+// ============================================
 // UTILITY FUNCTIONS
-// ===================================
-function formatCurrency(amount) {
-    if (amount === 0) return 'Rp 0';
-    return 'Rp ' + amount.toLocaleString('id-ID');
-}
+// ============================================
 
-function formatDate(date) {
-    const options = { day: 'numeric', month: 'short', year: 'numeric' };
-    return date.toLocaleDateString('en-US', options);
-}
-
-// ===================================
-// PREVENT ACCIDENTAL PAGE LEAVE
-// ===================================
-let formModified = false;
-
-document.addEventListener('DOMContentLoaded', function() {
-    const formInputs = document.querySelectorAll('#bookingForm input, #bookingForm select, #bookingForm textarea');
-    
-    formInputs.forEach(input => {
-        input.addEventListener('change', function() {
-            formModified = true;
-        });
+function formatRupiah(number) {
+    return 'Rp ' + number.toLocaleString('id-ID', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
     });
-});
+}
 
-window.addEventListener('beforeunload', function(e) {
-    if (formModified) {
-        e.preventDefault();
-        e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
-        return e.returnValue;
+function showError(message) {
+    const formMessages = document.getElementById('formMessages');
+    if (formMessages) {
+        formMessages.innerHTML = `
+            <div class="error-message" style="background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: start; gap: 12px;">
+                <i class="fas fa-exclamation-circle" style="color: #721c24; margin-top: 2px;"></i>
+                <p style="margin: 0;">${message}</p>
+            </div>
+        `;
+        
+        // Auto remove after 8 seconds
+        setTimeout(() => {
+            const errorMsg = formMessages.querySelector('.error-message');
+            if (errorMsg) {
+                errorMsg.style.transition = 'opacity 0.3s';
+                errorMsg.style.opacity = '0';
+                setTimeout(() => {
+                    formMessages.innerHTML = '';
+                }, 300);
+            }
+        }, 8000);
+    }
+}
+
+function scrollToSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
+// Real-time validation for new cat name inputs
+document.addEventListener('input', function(e) {
+    if (e.target.matches('input[name*="new_cats"][name*="[name]"]')) {
+        if (e.target.value.trim()) {
+            e.target.style.borderColor = '';
+        }
     }
 });
 
-document.getElementById('bookingForm')?.addEventListener('submit', function() {
-    formModified = false;
-});
-
-console.log('✅ Booking Form Complete JavaScript loaded successfully');
+// Make functions globally accessible
+window.toggleCatType = toggleCatType;
+window.toggleCatSelection = toggleCatSelection;
+window.updateCatsSelection = updateCatsSelection;
+window.addNewCatForm = addNewCatForm;
+window.removeCatForm = removeCatForm;

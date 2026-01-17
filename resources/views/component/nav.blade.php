@@ -24,10 +24,10 @@
     @if (Auth::user()->role === "sitter")
             {{-- NAVBAR UNTUK USER YANG SUDAH LOGIN --}}
         <ul class="nav-menu" id="navMenu">
-            <li><a href="{{ url('/dashboard') }}" class="{{ Request::is('dashboard') ? 'active' : '' }}">Dashboard</a></li>
-            <li><a href="{{ url('/my-service') }}" class="{{ Request::is('find-sitter') ? 'active' : '' }}">Service</a></li>
-            <li><a href="{{ url('/request') }}" class="{{ Request::is('my-request*') ? 'active' : '' }}">Request</a></li>
-            <li><a href="{{ url('/history') }}" class="{{ Request::is('my-cats*') ? 'active' : '' }}">History</a></li>
+            <li><a href="{{ route('pet-sitter.dashboard') }}" class="{{ Request::is('pet-sitter/dashboard') ? 'active' : '' }}">Dashboard</a></li>
+            <li><a href="{{ route('pet-sitter.services.index') }}" class="{{ Request::is('pet-sitter/services*') ? 'active' : '' }}">Service</a></li>
+            <li><a href="{{ route('pet-sitter.requests.index') }}" class="{{ Request::is('pet-sitter/requests*') ? 'active' : '' }}">Request</a></li>
+            <li><a href="{{ route('pet-sitter.profile') }}" class="{{ Request::is('pet-sitter/profile*') ? 'active' : '' }}">Profile</a></li>
         </ul>
 
         <div class="nav-buttons" id="navButtons">
@@ -210,7 +210,7 @@
       @if(Auth::user()->role === "sitter")
         <ul class="mobile-nav-menu">
             <li><a href="{{ url('/dashboard') }}" class="{{ Request::is('dashboard') ? 'active' : '' }}">Dashboard</a></li>
-            <li><a href="{{ url('service/') }}" class="{{ Request::is('find-sitter') ? 'active' : '' }}">Service</a></li>
+            <li><a href="{{ url('pet-sitter.services.index') }}" class="{{ Request::is('pet-sitter/services') ? 'active' : '' }}">Service</a></li>
             <li><a href="{{ url('/notifications') }}" class="{{ Request::is('notifications') ? 'active' : '' }}">
                 Notifications 
                 <span class="mobile-badge notif-badge-mobile">3</span>

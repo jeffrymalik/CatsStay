@@ -21,7 +21,7 @@
                 </p>
             </div>
             <div class="hero-image">
-                <img src="https://images.unsplash.com/photo-1573865526739-10c1dd8f0f51?w=600&h=400&fit=crop" alt="Cat on pillow">
+                <img src="{{asset('images/download.jpg')}}" alt="Cat on pillow">
             </div>
         </section>
 

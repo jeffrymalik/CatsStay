@@ -2,360 +2,447 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Models\Service;
+use App\Models\Cat;
+use App\Models\Address;
+use App\Models\Booking;
+use App\Models\BookingCat;
+use App\Models\Payment;
+use App\Models\SitterEarning;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class BookingController extends Controller
 {
     public function create($sitter_id)
     {
-        // Hardcoded sitters data (same as FindSitter & SitterProfile)
-        $allSitters = [
-            [
-                'id' => 1,
-                'name' => 'Sarah Johnson',
-                'location' => 'Jakarta Selatan',
-                'avatar' => 'https://ui-avatars.com/api/?name=Sarah+Johnson&size=200&background=FF9800&color=fff',
-                'rating' => 4.9,
-                'reviews_count' => 127,
-                'verified' => true,
-                'services' => [
-                    [
-                        'type' => 'cat-sitting',
-                        'name' => 'Cat Sitting',
-                        'price' => 75000,
-                        'icon' => 'fa-home',
-                        'description' => 'Full day care at my place with feeding, playing, and monitoring',
-                        'is_single_day' => false
-                    ],
-                    [
-                        'type' => 'grooming',
-                        'name' => 'Grooming',
-                        'price' => 50000,
-                        'icon' => 'fa-cut',
-                        'description' => 'Professional grooming including bathing, brushing, and nail trimming',
-                        'is_single_day' => true
-                    ],
-                ],
-            ],
-            [
-                'id' => 2,
-                'name' => 'Ahmad Pratama',
-                'location' => 'Jakarta Pusat',
-                'avatar' => 'https://ui-avatars.com/api/?name=Ahmad+Pratama&size=200&background=2196F3&color=fff',
-                'rating' => 4.8,
-                'reviews_count' => 95,
-                'verified' => true,
-                'services' => [
-                    [
-                        'type' => 'grooming',
-                        'name' => 'Grooming',
-                        'price' => 80000,
-                        'icon' => 'fa-cut',
-                        'description' => 'Premium grooming service with professional equipment',
-                        'is_single_day' => true
-                    ],
-                    [
-                        'type' => 'cat-sitting',
-                        'name' => 'Cat Sitting',
-                        'price' => 70000,
-                        'icon' => 'fa-home',
-                        'description' => 'Day care service at my certified facility',
-                        'is_single_day' => false
-                    ],
-                ],
-            ],
-            [
-                'id' => 3,
-                'name' => 'Lisa Anderson',
-                'location' => 'Jakarta Utara',
-                'avatar' => 'https://ui-avatars.com/api/?name=Lisa+Anderson&size=200&background=4CAF50&color=fff',
-                'rating' => 5.0,
-                'reviews_count' => 203,
-                'verified' => true,
-                'services' => [
-                    [
-                        'type' => 'cat-sitting',
-                        'name' => 'Cat Sitting',
-                        'price' => 95000,
-                        'icon' => 'fa-home',
-                        'description' => 'Professional cat care with medical knowledge and experience',
-                        'is_single_day' => false
-                    ],
-                    [
-                        'type' => 'grooming',
-                        'name' => 'Grooming',
-                        'price' => 75000,
-                        'icon' => 'fa-cut',
-                        'description' => 'Gentle grooming with health check included',
-                        'is_single_day' => true
-                    ],
-                    [
-                        'type' => 'home-visit',
-                        'name' => 'Home Visit',
-                        'price' => 60000,
-                        'icon' => 'fa-walking',
-                        'description' => 'Visit your home to feed and check on your cat',
-                        'is_single_day' => false
-                    ],
-                ],
-            ],
-        ];
+        $sitter = User::where('role', 'sitter')
+                     ->where('id', $sitter_id)
+                     ->with(['sitterProfile', 'addresses'])
+                     ->firstOrFail();
 
-        // Find sitter by ID
-        $sitter = collect($allSitters)->firstWhere('id', $sitter_id);
+        // Get user's registered cats
+        $registeredCats = Cat::where('user_id', Auth::id())
+                            ->where('is_active', true)
+                            ->get();
 
-        // If sitter not found, redirect back
-        if (!$sitter) {
-            return redirect()->back()->with('error', 'Sitter not found');
-        }
-
-        // Add sitter address to sitter data
-        $sitter['address'] = 'Jl. Sudirman No. 45, RT 005/RW 002, Karet Tengsin, ' . $sitter['location'];
-
-        // Hardcoded registered cats (user's cats)
-        $registeredCats = [
-            [
-                'id' => 1,
-                'name' => 'Luna',
-                'breed' => 'Persian',
-                'age' => '2 years',
-                'photo' => 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=100'
-            ],
-            [
-                'id' => 2,
-                'name' => 'Milo',
-                'breed' => 'British Shorthair',
-                'age' => '3 years',
-                'photo' => 'https://images.unsplash.com/photo-1573865526739-10c1dd7e1d0f?w=100'
-            ],
-            [
-                'id' => 3,
-                'name' => 'Whiskers',
-                'breed' => 'Maine Coon',
-                'age' => '1 year',
-                'photo' => 'https://images.unsplash.com/photo-1495360010541-f48722b34f7d?w=100'
-            ],
-        ];
-
-        // Hardcoded user addresses (from profile)
-        $userAddresses = [
-            [
-                'id' => 1,
-                'label' => 'Home',
-                'full_address' => 'Jl. Kebon Jeruk No. 123, Kelurahan Kebon Jeruk, Kecamatan Kebon Jeruk, Jakarta Barat, DKI Jakarta, 11530'
-            ],
-            [
-                'id' => 2,
-                'label' => 'Office',
-                'full_address' => 'Jl. Thamrin No. 8, Menteng, Jakarta Pusat, DKI Jakarta, 10230'
-            ],
-        ];
+        // Get user's addresses
+        $userAddresses = Address::where('user_id', Auth::id())->get();
 
         return view('pages.dashboard_user.booking-form', compact('sitter', 'registeredCats', 'userAddresses'));
     }
 
-    public function store(Request $request)
-    {
-        // Validate request
-        $validated = $request->validate([
-            'sitter_id' => 'required|integer',
-            'service_type' => 'required|string',
-            'cat_type' => 'required|in:registered,new',
-            'registered_cat_id' => 'required_if:cat_type,registered',
-            'new_cat_name' => 'required_if:cat_type,new|max:100',
-            'new_cat_breed' => 'nullable|max:100',
-            'new_cat_age' => 'nullable|max:50',
-            'start_date' => 'required|date|after_or_equal:today',
-            'end_date' => 'required|date|after_or_equal:start_date',
-            'delivery_method' => 'required|in:dropoff,pickup',
-            'user_address_id' => 'required_if:delivery_method,pickup',
-            'special_notes' => 'nullable|string|max:500',
-            'terms_accepted' => 'required|accepted',
-        ], [
-            // Custom error messages
-            'sitter_id.required' => 'Sitter information is missing',
-            'service_type.required' => 'Please select a service',
-            'cat_type.required' => 'Please select a cat type',
-            'registered_cat_id.required_if' => 'Please select a cat from your registered cats',
-            'new_cat_name.required_if' => 'Please enter your cat\'s name',
-            'start_date.required' => 'Please select a start date',
-            'start_date.after_or_equal' => 'Start date must be today or in the future',
-            'end_date.required' => 'Please select an end date',
-            'end_date.after_or_equal' => 'End date must be after or equal to start date',
-            'delivery_method.required' => 'Please select a delivery method',
-            'user_address_id.required_if' => 'Please select your address for pick-up service',
-            'terms_accepted.accepted' => 'You must accept the Terms of Service and Cancellation Policy',
-        ]);
+public function store(Request $request)
+{
+    /*
+    |--------------------------------------------------------------------------
+    | 1. Ambil service & tentukan tipe hari
+    |--------------------------------------------------------------------------
+    */
+    $service = Service::where('slug', $request->service_type)->firstOrFail();
+    $isSingleDay = in_array($service->slug, ['grooming', 'home-visit']);
 
-        // Calculate duration and total price
-        $startDate = \Carbon\Carbon::parse($validated['start_date']);
-        $endDate = \Carbon\Carbon::parse($validated['end_date']);
-        $duration = $startDate->diffInDays($endDate) + 1;
-
-        // Calculate delivery fee
-        $deliveryFee = $validated['delivery_method'] === 'pickup' ? 50000 : 0;
-
-        // Generate booking code (simple format)
-        $bookingCode = 'BOOK-' . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT);
-
-        // For now, store booking data in session for confirmation page
-        session([
-            'pending_booking' => [
-                'booking_code' => $bookingCode,
-                'sitter_id' => $validated['sitter_id'],
-                'service_type' => $validated['service_type'],
-                'cat_type' => $validated['cat_type'],
-                'cat_id' => $validated['cat_type'] === 'registered' ? $validated['registered_cat_id'] : null,
-                'cat_name' => $validated['cat_type'] === 'new' ? $validated['new_cat_name'] : null,
-                'cat_breed' => $validated['cat_type'] === 'new' ? $validated['new_cat_breed'] : null,
-                'start_date' => $validated['start_date'],
-                'end_date' => $validated['end_date'],
-                'duration' => $duration,
-                'delivery_method' => $validated['delivery_method'],
-                'user_address_id' => $validated['delivery_method'] === 'pickup' ? $validated['user_address_id'] : null,
-                'delivery_fee' => $deliveryFee,
-                'special_notes' => $validated['special_notes'] ?? null,
-                'status' => 'Waiting Sitter Confirmation',
-                'created_at' => now()->format('Y-m-d H:i:s'),
-            ]
-        ]);
-
-        // Redirect to booking confirmation page
-        return redirect()->route('booking.confirmation');
+    /*
+    |--------------------------------------------------------------------------
+    | 2. Bersihkan input berdasarkan cat_type (🔥 PALING PENTING)
+    |--------------------------------------------------------------------------
+    */
+    if ($request->cat_type === 'registered') {
+        $request->request->remove('new_cats');
     }
 
-    public function confirmation()
+    if ($request->cat_type === 'new') {
+        $request->request->remove('registered_cat_ids');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | 3. Validasi (conditional & aman)
+    |--------------------------------------------------------------------------
+    */
+    $validated = $request->validate([
+        'sitter_id' => 'required|exists:users,id',
+        'service_type' => 'required|exists:services,slug',
+        'cat_type' => 'required|in:registered,new',
+
+        // tanggal
+        'start_date' => 'required|date|after_or_equal:today',
+        'end_date' => $isSingleDay
+            ? 'nullable'
+            : 'required|date|after_or_equal:start_date',
+
+        // pengantaran
+        'delivery_method' => 'required|in:dropoff,pickup',
+        'user_address_id' => 'required_if:delivery_method,pickup|nullable|exists:addresses,id',
+
+        // cat registered
+        'registered_cat_ids' => 'required_if:cat_type,registered|array|min:1',
+        'registered_cat_ids.*' => 'exists:cats,id',
+
+        // cat baru
+        'new_cats' => 'required_if:cat_type,new|array|min:1',
+        'new_cats.*.name' => 'required_if:cat_type,new|string|max:100',
+        'new_cats.*.breed' => 'nullable|string|max:100',
+        'new_cats.*.age' => 'nullable|string|max:50',
+
+        // lainnya
+        'special_notes' => 'nullable|string|max:500',
+        'terms_accepted' => 'accepted',
+    ]);
+
+    DB::beginTransaction();
+
+    try {
+        /*
+        |--------------------------------------------------------------------------
+        | 4. Ambil harga sitter
+        |--------------------------------------------------------------------------
+        */
+        $sitter = User::findOrFail($validated['sitter_id']);
+        $priceField = str_replace('-', '_', $service->slug) . '_price';
+        $basePrice = $sitter->sitterProfile->{$priceField};
+
+        if (!$basePrice || $basePrice <= 0) {
+            throw new \Exception('Service price not available.');
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | 5. Validasi kepemilikan kucing (registered)
+        |--------------------------------------------------------------------------
+        */
+        if ($validated['cat_type'] === 'registered') {
+            $validCatCount = Cat::where('user_id', Auth::id())
+                ->whereIn('id', $validated['registered_cat_ids'])
+                ->count();
+
+            if ($validCatCount !== count($validated['registered_cat_ids'])) {
+                throw new \Exception('Invalid cat selection.');
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | 6. Hitung durasi
+        |--------------------------------------------------------------------------
+        */
+        $startDate = \Carbon\Carbon::parse($validated['start_date']);
+
+        if ($isSingleDay) {
+            $endDate = $startDate->copy();
+            $duration = 1;
+        } else {
+            $endDate = \Carbon\Carbon::parse($validated['end_date']);
+            $duration = $startDate->diffInDays($endDate) + 1;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | 7. Hitung jumlah kucing
+        |--------------------------------------------------------------------------
+        */
+        $totalCats = $validated['cat_type'] === 'registered'
+            ? count($validated['registered_cat_ids'])
+            : count($validated['new_cats']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | 8. Hitung harga
+        |--------------------------------------------------------------------------
+        */
+        $pricing = (new Booking())->calculatePricing(
+            $basePrice,
+            $duration,
+            $validated['delivery_method'],
+            $totalCats
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | 9. Simpan booking
+        |--------------------------------------------------------------------------
+        */
+        $booking = Booking::create([
+            'user_id' => Auth::id(),
+            'sitter_id' => $validated['sitter_id'],
+            'service_id' => $service->id,
+            'booking_code' => Booking::generateBookingCode(),
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'duration' => $duration,
+            'total_cats' => $totalCats,
+            'delivery_method' => $validated['delivery_method'],
+            'address_id' => $validated['delivery_method'] === 'pickup'
+                ? $validated['user_address_id']
+                : null,
+            'special_notes' => $validated['special_notes'] ?? null,
+            'status' => 'pending',
+            'service_price' => $pricing['service_price'],
+            'delivery_fee' => $pricing['delivery_fee'],
+            'subtotal' => $pricing['subtotal'],
+            'platform_fee' => $pricing['platform_fee'],
+            'total_price' => $pricing['total_price'],
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | 10. Simpan kucing ke booking
+        |--------------------------------------------------------------------------
+        */
+        if ($validated['cat_type'] === 'registered') {
+            foreach ($validated['registered_cat_ids'] as $catId) {
+                BookingCat::create([
+                    'booking_id' => $booking->id,
+                    'cat_id' => $catId,
+                    'cat_type' => 'registered',
+                ]);
+            }
+        } else {
+            foreach ($validated['new_cats'] as $cat) {
+                BookingCat::create([
+                    'booking_id' => $booking->id,
+                    'cat_type' => 'new',
+                    'new_cat_name' => $cat['name'],
+                    'new_cat_breed' => $cat['breed'] ?? null,
+                    'new_cat_age' => $cat['age'] ?? null,
+                ]);
+            }
+        }
+
+        DB::commit();
+
+        return redirect()
+            ->route('booking.confirmation', $booking->id)
+            ->with('success', 'Booking created successfully.');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+
+        return back()
+            ->withInput()
+            ->with('error', $e->getMessage());
+    }
+}
+
+/**
+ * Show booking confirmation page
+ */
+public function confirmation($id)
+{
+    $booking = Booking::where('id', $id)
+                     ->where('user_id', Auth::id())
+                     ->with([
+                         'sitter.sitterProfile',
+                         'sitter.addresses',
+                         'service',
+                         'bookingCats.cat',
+                         'address'
+                     ])
+                     ->firstOrFail();
+
+    return view('pages.dashboard_user.booking-confirmation', compact('booking'));
+}
+
+    /**
+     * Cancel booking
+     */
+    public function cancel(Request $request, $id)
     {
-        // Get booking data from session
-        $sessionBooking = session('pending_booking');
+        $validated = $request->validate([
+            'cancel_reason' => 'required|string|max:500',
+        ]);
 
-        // If no pending booking, redirect to dashboard
-        if (!$sessionBooking) {
-            return redirect()->route('user.dashboard')
-                ->with('error', 'No pending booking found.');
+        DB::beginTransaction();
+        try {
+            $booking = Booking::where('id', $id)
+                             ->where('user_id', Auth::id())
+                             ->whereIn('status', ['pending', 'confirmed'])
+                             ->with('payment')
+                             ->firstOrFail();
+
+            // Update booking status
+            $booking->update([
+                'status' => 'cancelled',
+                'cancelled_at' => now(),
+                'cancel_reason' => $validated['cancel_reason'],
+            ]);
+
+            // If payment exists and is confirmed/held, process refund
+            if ($booking->payment && in_array($booking->payment->payment_status, ['confirmed', 'held'])) {
+                $booking->payment->refund($validated['cancel_reason']);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Booking cancelled successfully',
+                'redirect' => route('my-request.show', $booking->id)
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to cancel booking: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Show payment page
+     */
+    public function payment($id)
+    {
+        $booking = Booking::where('id', $id)
+                         ->where('user_id', Auth::id())
+                         ->where('status', 'confirmed')
+                         ->with(['sitter', 'service', 'bookingCats.cat', 'payment'])
+                         ->firstOrFail();
+
+        // Check if already paid
+        if ($booking->payment && $booking->payment->payment_status !== 'pending') {
+            return redirect()->route('my-request.show', $booking->id)
+                ->with('info', 'This booking has already been paid.');
         }
 
-        // Hardcoded sitters data
-        $allSitters = [
-            [
-                'id' => 1,
-                'name' => 'Sarah Johnson',
-                'location' => 'Jakarta Selatan',
-                'address' => 'Jl. Sudirman No. 45, RT 005/RW 002, Karet Tengsin, Jakarta Selatan, DKI Jakarta, 12920',
-                'avatar' => 'https://ui-avatars.com/api/?name=Sarah+Johnson&size=200&background=FF9800&color=fff',
-                'rating' => 4.9,
-                'services' => [
-                    ['type' => 'cat-sitting', 'name' => 'Cat Sitting', 'price' => 75000],
-                    ['type' => 'grooming', 'name' => 'Grooming', 'price' => 50000],
-                ],
-            ],
-            [
-                'id' => 2,
-                'name' => 'Ahmad Pratama',
-                'location' => 'Jakarta Pusat',
-                'address' => 'Jl. MH Thamrin No. 10, Menteng, Jakarta Pusat, DKI Jakarta, 10230',
-                'avatar' => 'https://ui-avatars.com/api/?name=Ahmad+Pratama&size=200&background=2196F3&color=fff',
-                'rating' => 4.8,
-                'services' => [
-                    ['type' => 'grooming', 'name' => 'Grooming', 'price' => 80000],
-                    ['type' => 'cat-sitting', 'name' => 'Cat Sitting', 'price' => 70000],
-                ],
-            ],
-            [
-                'id' => 3,
-                'name' => 'Lisa Anderson',
-                'location' => 'Jakarta Utara',
-                'address' => 'Jl. Pantai Indah Kapuk No. 88, Penjaringan, Jakarta Utara, DKI Jakarta, 14460',
-                'avatar' => 'https://ui-avatars.com/api/?name=Lisa+Anderson&size=200&background=4CAF50&color=fff',
-                'rating' => 5.0,
-                'services' => [
-                    ['type' => 'cat-sitting', 'name' => 'Cat Sitting', 'price' => 95000],
-                    ['type' => 'grooming', 'name' => 'Grooming', 'price' => 75000],
-                    ['type' => 'home-visit', 'name' => 'Home Visit', 'price' => 60000],
-                ],
-            ],
-        ];
+        return view('pages.dashboard_user.payment', compact('booking'));
+    }
 
-        // Hardcoded registered cats
-        $allCats = [
-            ['id' => 1, 'name' => 'Luna', 'breed' => 'Persian'],
-            ['id' => 2, 'name' => 'Milo', 'breed' => 'British Shorthair'],
-            ['id' => 3, 'name' => 'Whiskers', 'breed' => 'Maine Coon'],
-        ];
+    /**
+     * Process payment
+     */
+    public function processPayment(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'payment_method' => 'required|in:bank_transfer,gopay,shopeepay,ovo,dana,credit_card,debit_card,virtual_account,qris',
+            'payment_proof' => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // For manual bank transfer
+        ]);
 
-        // Hardcoded user addresses
-        $allAddresses = [
-            ['id' => 1, 'label' => 'Home', 'full_address' => 'Jl. Kebon Jeruk No. 123, Kelurahan Kebon Jeruk, Kecamatan Kebon Jeruk, Jakarta Barat, DKI Jakarta, 11530'],
-            ['id' => 2, 'label' => 'Office', 'full_address' => 'Jl. Thamrin No. 8, Menteng, Jakarta Pusat, DKI Jakarta, 10230'],
-        ];
+        DB::beginTransaction();
+        try {
+            $booking = Booking::where('id', $id)
+                             ->where('user_id', Auth::id())
+                             ->where('status', 'confirmed')
+                             ->with('payment')
+                             ->firstOrFail();
 
-        // Find sitter
-        $sitter = collect($allSitters)->firstWhere('id', $sessionBooking['sitter_id']);
+            // Check if payment already exists
+            if ($booking->payment) {
+                // Update existing payment
+                $payment = $booking->payment;
+            } else {
+                // Calculate fees
+                $amount = $booking->total_price;
+                $platformFee = $amount * 0.10; // 10% platform fee
+                $sitterEarning = $amount - $platformFee;
+
+                // Create new payment
+                $payment = Payment::create([
+                    'booking_id' => $booking->id,
+                    'user_id' => Auth::id(),
+                    'sitter_id' => $booking->sitter_id,
+                    'payment_code' => Payment::generatePaymentCode(),
+                    'amount' => $amount,
+                    'platform_fee' => $platformFee,
+                    'sitter_earning' => $sitterEarning,
+                    'payment_status' => 'pending',
+                    'payout_status' => 'pending',
+                ]);
+
+                // Create sitter earning record
+                SitterEarning::create([
+                    'user_id' => $booking->sitter_id,
+                    'booking_id' => $booking->id,
+                    'payment_id' => $payment->id,
+                    'earning_code' => SitterEarning::generateEarningCode(),
+                    'booking_amount' => $amount,
+                    'platform_fee' => $platformFee,
+                    'net_earning' => $sitterEarning,
+                    'status' => 'pending',
+                ]);
+            }
+
+            // Handle payment proof upload for manual transfer
+            $paymentProof = null;
+            if ($request->hasFile('payment_proof')) {
+                $file = $request->file('payment_proof');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->storeAs('payment_proofs', $filename, 'public');
+                $paymentProof = 'payment_proofs/' . $filename;
+            }
+
+            // Update payment method and proof
+            $payment->update([
+                'payment_method' => $validated['payment_method'],
+                'payment_proof' => $paymentProof,
+                'payment_gateway' => $this->getPaymentGateway($validated['payment_method']),
+            ]);
+
+            // For demo purposes, auto-confirm payment
+            // In production, this would be handled by payment gateway webhook
+            if (in_array($validated['payment_method'], ['bank_transfer']) && $paymentProof) {
+                // Manual transfer needs admin verification
+                $payment->update(['payment_status' => 'pending']);
+            } else {
+                // Auto-confirm for e-wallets (in production, wait for gateway confirmation)
+                $this->confirmPayment($payment);
+            }
+
+            DB::commit();
+
+            return redirect()->route('my-request.payment.success', $booking->id)
+                ->with('success', 'Payment submitted successfully!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()
+                ->withInput()
+                ->with('error', 'Payment failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Payment success page
+     */
+    public function paymentSuccess($id)
+    {
+        $booking = Booking::where('id', $id)
+                         ->where('user_id', Auth::id())
+                         ->with(['payment', 'sitter', 'service'])
+                         ->firstOrFail();
+
+        return view('pages.dashboard_user.payment-success', compact('booking'));
+    }
+
+    /**
+     * Confirm payment (helper method)
+     */
+    private function confirmPayment(Payment $payment)
+    {
+        $payment->confirmPayment();
+        $payment->holdInEscrow();
+    }
+
+    /**
+     * Get payment gateway based on method
+     */
+    private function getPaymentGateway($method)
+    {
+        if ($method === 'bank_transfer') {
+            return 'manual';
+        }
         
-        // Find service
-        $service = collect($sitter['services'])->firstWhere('type', $sessionBooking['service_type']);
-
-        // Find cat
-        $catName = '';
-        $catBreed = '';
-        if ($sessionBooking['cat_type'] === 'registered') {
-            $cat = collect($allCats)->firstWhere('id', $sessionBooking['cat_id']);
-            $catName = $cat['name'];
-            $catBreed = $cat['breed'];
-        } else {
-            $catName = $sessionBooking['cat_name'];
-            $catBreed = $sessionBooking['cat_breed'] ?? 'Not specified';
+        if (in_array($method, ['gopay', 'shopeepay', 'ovo', 'dana', 'qris'])) {
+            return 'midtrans'; // or 'xendit'
         }
-
-        // Find address
-        $userAddress = '';
-        if ($sessionBooking['delivery_method'] === 'pickup') {
-            $address = collect($allAddresses)->firstWhere('id', $sessionBooking['user_address_id']);
-            $userAddress = $address['full_address'] ?? 'Address not found';
-        }
-
-        // Calculate prices
-        $servicePrice = $service['price'] * $sessionBooking['duration'];
-        $deliveryFee = $sessionBooking['delivery_fee'];
-        $subtotal = $servicePrice + $deliveryFee;
-        $platformFee = $subtotal * 0.05;
-        $totalPrice = $subtotal + $platformFee;
-
-        // Format dates
-        $startDate = \Carbon\Carbon::parse($sessionBooking['start_date']);
-        $endDate = \Carbon\Carbon::parse($sessionBooking['end_date']);
         
-        if ($sessionBooking['duration'] == 1) {
-            $dateRange = $startDate->format('M d, Y');
-            $durationText = '1 day';
-        } else {
-            $dateRange = $startDate->format('M d') . ' - ' . $endDate->format('M d, Y');
-            $durationText = $sessionBooking['duration'] . ' days';
+        if (in_array($method, ['credit_card', 'debit_card', 'virtual_account'])) {
+            return 'midtrans';
         }
-
-        // Prepare booking data for view
-        $booking = [
-            'code' => $sessionBooking['booking_code'],
-            'status' => $sessionBooking['status'],
-            'service_name' => $service['name'],
-            'service_price' => 'Rp ' . number_format($servicePrice, 0, ',', '.'),
-            'sitter_name' => $sitter['name'],
-            'sitter_avatar' => $sitter['avatar'],
-            'sitter_rating' => $sitter['rating'],
-            'sitter_address' => $sitter['address'],
-            'cat_name' => $catName,
-            'cat_breed' => $catBreed,
-            'date_range' => $dateRange,
-            'duration' => $durationText,
-            'delivery_method' => $sessionBooking['delivery_method'],
-            'user_address' => $userAddress,
-            'delivery_fee' => $deliveryFee,
-            'delivery_fee_formatted' => 'Rp ' . number_format($deliveryFee, 0, ',', '.'),
-            'platform_fee' => 'Rp ' . number_format($platformFee, 0, ',', '.'),
-            'total_price' => 'Rp ' . number_format($totalPrice, 0, ',', '.'),
-            'special_notes' => $sessionBooking['special_notes'],
-        ];
-
-        return view('pages.dashboard_user.booking-confirmation', compact('booking'));
+        
+        return null;
     }
 }

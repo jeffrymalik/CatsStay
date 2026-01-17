@@ -1552,3 +1552,393 @@
         font-size: 18px;
     }
 }
+
+/* ===================================
+   EDIT PROFILE MODAL
+   =================================== */
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.profile-avatar.large img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+/* Modal specific for edit profile */
+#editProfileModal .modal-content {
+    max-width: 700px;
+}
+
+#editProfileForm .form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+#editProfileForm .form-group {
+    margin-bottom: 20px;
+}
+
+#editProfileForm .form-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+#editProfileForm .form-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #E0E0E0;
+    border-radius: 8px;
+    font-size: 15px;
+    color: #333;
+    transition: all 0.3s ease;
+    font-family: 'Gotham', sans-serif;
+}
+
+#editProfileForm .form-input:focus {
+    outline: none;
+    border-color: #FFA726;
+    box-shadow: 0 0 0 3px rgba(255, 167, 38, 0.1);
+}
+
+#editProfileForm .form-input::placeholder {
+    color: #999;
+}
+
+#editProfileForm select.form-input {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+}
+
+#editProfileForm textarea.form-input {
+    resize: vertical;
+    min-height: 80px;
+}
+
+#editProfileForm input[type="file"].form-input {
+    padding: 10px 12px;
+    cursor: pointer;
+}
+
+#editProfileForm input[type="file"].form-input::-webkit-file-upload-button {
+    padding: 6px 16px;
+    background: #F5F5F5;
+    border: none;
+    border-radius: 6px;
+    color: #666;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    margin-right: 12px;
+    transition: all 0.3s ease;
+}
+
+#editProfileForm input[type="file"].form-input::-webkit-file-upload-button:hover {
+    background: #E0E0E0;
+}
+
+#editProfileForm small {
+    display: block;
+    margin-top: 6px;
+    font-size: 13px;
+    color: #666;
+}
+
+/* Photo preview in modal */
+#editProfileForm img {
+    margin-top: 12px;
+    border: 2px solid #E0E0E0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Checkbox wrapper for terms */
+.checkbox-wrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 20px 0;
+}
+
+.checkbox-wrapper input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #FFA726;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.checkbox-label {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.5;
+    cursor: pointer;
+}
+
+.checkbox-label a {
+    color: #FFA726;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.checkbox-label a:hover {
+    text-decoration: underline;
+}
+
+/* ===================================
+   INFO BOX
+   =================================== */
+
+.info-box {
+    display: flex;
+    gap: 16px;
+    padding: 20px;
+    background: #E3F2FD;
+    border-left: 4px solid #2196F3;
+    border-radius: 8px;
+    margin-top: 24px;
+}
+
+.info-box svg {
+    flex-shrink: 0;
+    color: #2196F3;
+}
+
+.info-box div {
+    flex: 1;
+}
+
+.info-box p {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    color: #1565C0;
+    line-height: 1.6;
+}
+
+.info-box p:last-child {
+    margin-bottom: 0;
+}
+
+.info-box strong {
+    font-weight: 700;
+}
+
+/* Warning info box variant */
+.info-box.warning {
+    background: #FFF3E0;
+    border-left-color: #FF9800;
+}
+
+.info-box.warning svg {
+    color: #FF9800;
+}
+
+.info-box.warning p {
+    color: #E65100;
+}
+
+/* ===================================
+   RESPONSIVE IMPROVEMENTS
+   =================================== */
+
+@media (max-width: 768px) {
+    /* Edit Profile Modal */
+    #editProfileForm .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    #editProfileModal .modal-content {
+        max-width: 100%;
+        margin: auto 0 0 0;
+        border-radius: 20px 20px 0 0;
+        max-height: 95vh;
+    }
+
+    .modal-header {
+        position: sticky;
+        top: 0;
+        background: white;
+        z-index: 1;
+    }
+
+    /* Profile Avatar */
+    .profile-photo-section {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .profile-basic-info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* Info Box */
+    .info-box {
+        flex-direction: column;
+        gap: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-header h2 {
+        font-size: 18px;
+    }
+
+    #editProfileForm .form-label {
+        font-size: 13px;
+    }
+
+    #editProfileForm .form-input {
+        font-size: 14px;
+        padding: 10px 14px;
+    }
+
+    .btn-save,
+    .btn-cancel {
+        font-size: 14px;
+        padding: 10px 20px;
+    }
+}
+
+/* ===================================
+   ADDITIONAL UTILITIES
+   =================================== */
+
+/* Disabled state for inputs */
+.form-input:disabled {
+    background-color: #F5F5F5;
+    color: #999;
+    cursor: not-allowed;
+}
+
+/* Required field indicator */
+.form-label .required {
+    color: #F44336;
+    margin-left: 4px;
+}
+
+/* Helper text */
+.helper-text {
+    display: block;
+    margin-top: 6px;
+    font-size: 13px;
+    color: #666;
+    line-height: 1.4;
+}
+
+.helper-text.error {
+    color: #F44336;
+}
+
+.helper-text.success {
+    color: #4CAF50;
+}
+
+/* Loading state for buttons */
+.btn-save.loading,
+.btn-update-password.loading {
+    opacity: 0.7;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.btn-save.loading::before,
+.btn-update-password.loading::before {
+    content: '';
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin-right: 8px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Focus visible for accessibility */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid #FFA726;
+    outline-offset: 2px;
+}
+
+/* Smooth scrolling for modal */
+.modal-content {
+    scroll-behavior: smooth;
+}
+
+.modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: #F5F5F5;
+    border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: #CCC;
+    border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background: #AAA;
+}
+
+/* ===================================
+   DARK MODE SUPPORT (Optional)
+   =================================== */
+
+@media (prefers-color-scheme: dark) {
+    /* Add dark mode styles if needed */
+}
+
+/* ===================================
+   PRINT STYLES
+   =================================== */
+
+@media print {
+    .profile-sidebar,
+    .btn-edit-profile,
+    .btn-edit-small,
+    .btn-add-address,
+    .address-actions,
+    .back-button,
+    .modal-overlay {
+        display: none !important;
+    }
+
+    .profile-container {
+        padding: 0;
+    }
+
+    .profile-card {
+        box-shadow: none;
+        border: 1px solid #E0E0E0;
+        page-break-inside: avoid;
+    }
+}

@@ -45,15 +45,15 @@
         @endif
 
         {{-- Cats Grid --}}
-        @if(count($cats) > 0)
+        @if($cats->count() > 0)
         <div class="cats-grid">
             @foreach($cats as $cat)
             <div class="cat-card">
                 {{-- Cat Photo --}}
                 <div class="cat-photo-wrapper">
-                    <img src="{{ $cat['photo'] }}" alt="{{ $cat['name'] }}" class="cat-photo">
+                    <img src="{{ $cat->photo_url }}" alt="{{ $cat->name }}" class="cat-photo">
                     <div class="cat-photo-overlay">
-                        <button class="btn-view" onclick="window.location.href='{{ route('my-cats.show', $cat['id']) }}'">
+                        <button class="btn-view" onclick="window.location.href='{{ route('my-cats.show', $cat->id) }}'">
                             <i class="fas fa-eye"></i>
                             View Details
                         </button>
@@ -63,38 +63,42 @@
                 {{-- Cat Info --}}
                 <div class="cat-info">
                     <div class="cat-header">
-                        <h3 class="cat-name">{{ $cat['name'] }}</h3>
-                        <span class="cat-gender {{ strtolower($cat['gender']) }}">
-                            <i class="fas fa-{{ $cat['gender'] === 'Male' ? 'mars' : 'venus' }}"></i>
+                        <h3 class="cat-name">{{ $cat->name }}</h3>
+                        @if($cat->gender)
+                        <span class="cat-gender {{ strtolower($cat->gender) }}">
+                            <i class="fas fa-{{ $cat->gender === 'male' ? 'mars' : 'venus' }}"></i>
                         </span>
+                        @endif
                     </div>
 
                     <div class="cat-details">
                         <p class="cat-breed">
                             <i class="fas fa-cat"></i>
-                            {{ $cat['breed'] ?? 'Mixed Breed' }}
+                            {{ $cat->breed ?? 'Mixed Breed' }}
                         </p>
+                        @if($cat->age)
                         <p class="cat-age">
                             <i class="fas fa-birthday-cake"></i>
-                            {{ $cat['age'] }}
+                            {{ $cat->age }}
                         </p>
-                        @if(isset($cat['weight']))
+                        @endif
+                        @if($cat->weight)
                         <p class="cat-weight">
                             <i class="fas fa-weight"></i>
-                            {{ $cat['weight'] }}
+                            {{ $cat->weight }} kg
                         </p>
                         @endif
                     </div>
 
                     {{-- Quick Info Tags --}}
                     <div class="cat-tags">
-                        @if(isset($cat['medical_notes']) && !empty($cat['medical_notes']))
+                        @if($cat->medical_notes)
                         <span class="tag tag-medical">
                             <i class="fas fa-notes-medical"></i>
                             Medical Notes
                         </span>
                         @endif
-                        @if(isset($cat['special_instructions']) && !empty($cat['special_instructions']))
+                        @if($cat->care_instructions)
                         <span class="tag tag-special">
                             <i class="fas fa-star"></i>
                             Special Care
@@ -104,11 +108,11 @@
 
                     {{-- Actions --}}
                     <div class="cat-actions">
-                        <a href="{{ route('my-cats.edit', $cat['id']) }}" class="btn-action btn-edit">
+                        <a href="{{ route('my-cats.edit', $cat->id) }}" class="btn-action btn-edit">
                             <i class="fas fa-edit"></i>
                             Edit
                         </a>
-                        <button onclick="confirmDelete({{ $cat['id'] }}, '{{ $cat['name'] }}')" class="btn-action btn-delete">
+                        <button onclick="confirmDelete({{ $cat->id }}, '{{ $cat->name }}')" class="btn-action btn-delete">
                             <i class="fas fa-trash-alt"></i>
                             Delete
                         </button>
@@ -118,14 +122,14 @@
             @endforeach
 
             {{-- Add Cat Card (Empty Slot) --}}
-            @if(count($cats) < 10)
+            @if($cats->count() < 10)
             <div class="cat-card add-cat-card">
                 <a href="{{ route('my-cats.create') }}" class="add-cat-link">
                     <div class="add-cat-icon">
                         <i class="fas fa-plus"></i>
                     </div>
                     <h3 class="add-cat-text">Add Another Cat</h3>
-                    <p class="add-cat-subtitle">You can add up to {{ 10 - count($cats) }} more cat(s)</p>
+                    <p class="add-cat-subtitle">You can add up to {{ 10 - $cats->count() }} more cat(s)</p>
                 </a>
             </div>
             @endif

@@ -95,15 +95,15 @@
     <div class="quick-actions-section">
         <h2 class="section-title">Quick Actions</h2>
         <div class="quick-actions-grid">
-            <a href="{{ url('/find-sitter') }}" class="action-card">
+            <a href="{{ url('/select-service') }}" class="action-card">
                 <div class="action-icon orange">
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="11" cy="11" r="8" stroke="white" stroke-width="2"/>
                         <path d="M21 21l-4.35-4.35" stroke="white" stroke-width="2" stroke-linecap="round"/>
                     </svg>
                 </div>
-                <h3 class="action-title">Find Sitter</h3>
-                <p class="action-desc">Browse trusted cat sitters</p>
+                <h3 class="action-title">Select Services</h3>
+                <p class="action-desc">Browse our services</p>
             </a>
 
             {{-- UPDATED: New Booking now redirects to Select Service --}}

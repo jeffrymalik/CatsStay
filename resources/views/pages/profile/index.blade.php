@@ -82,15 +82,19 @@
             <div class="profile-card profile-overview">
                 <div class="profile-photo-section">
                     <div class="profile-avatar large">
-                        {{ strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1)) }}
+                        @if($user->photo)
+                            <img src="{{ asset('storage/' . $user->photo) }}" alt="{{ $user->name }}">
+                        @else
+                            {{ strtoupper(substr($user->name, 0, 2)) }}
+                        @endif
                     </div>
                     <div class="profile-basic-info">
-                        <h2>{{ $user['name'] }}</h2>
-                        <p class="profile-email">{{ $user['email'] }}</p>
-                        <span class="role-badge">{{ strtoupper($user['role']) }}</span>
+                        <h2>{{ $user->name }}</h2>
+                        <p class="profile-email">{{ $user->email }}</p>
+                        <span class="role-badge">{{ strtoupper($user->role) }}</span>
                     </div>
                 </div>
-                <button class="btn-edit-profile">
+                <button class="btn-edit-profile" onclick="openEditProfileModal()">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -103,38 +107,39 @@
             <div class="profile-card">
                 <div class="card-header">
                     <h3>Personal Information</h3>
-                    <button class="btn-edit-small">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        Edit
-                    </button>
                 </div>
                 <div class="info-grid">
                     <div class="info-item">
-                        <label>First Name</label>
-                        <p>{{ $user['first_name'] }}</p>
-                    </div>
-                    <div class="info-item">
-                        <label>Last Name</label>
-                        <p>{{ $user['last_name'] }}</p>
+                        <label>Full Name</label>
+                        <p>{{ $user->name }}</p>
                     </div>
                     <div class="info-item">
                         <label>Email Address</label>
-                        <p>{{ $user['email'] }}</p>
+                        <p>{{ $user->email }}</p>
                     </div>
                     <div class="info-item">
                         <label>Phone Number</label>
-                        <p>{{ $user['phone'] }}</p>
+                        <p>{{ $user->phone ?? 'Not set' }}</p>
                     </div>
+                    <div class="info-item">
+                        <label>Gender</label>
+                        <p>{{ $user->gender ? ucfirst($user->gender) : 'Not set' }}</p>
+                    </div>
+                    @if($user->date_of_birth)
+                    <div class="info-item">
+                        <label>Date of Birth</label>
+                        <p>{{ $user->date_of_birth->format('F d, Y') }}</p>
+                    </div>
+                    @endif
+                    @if($user->bio)
                     <div class="info-item full-width">
                         <label>Bio</label>
-                        <p>{{ $user['bio'] }}</p>
+                        <p>{{ $user->bio }}</p>
                     </div>
+                    @endif
                     <div class="info-item full-width">
                         <label>Member Since</label>
-                        <p>{{ $user['joined'] }}</p>
+                        <p>{{ $user->created_at->format('F d, Y') }}</p>
                     </div>
                 </div>
             </div>
@@ -300,8 +305,103 @@
         </div>
     </div>
 </div>
+
+<!-- Edit Profile Modal -->
+<div class="modal-overlay" id="editProfileModal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Edit Profile</h2>
+            <button class="btn-close-modal" onclick="closeEditProfileModal()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </div>
+
+        <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data" id="editProfileForm">
+            @csrf
+
+            <div class="form-group">
+                <label class="form-label">Full Name *</label>
+                <input type="text" name="name" class="form-input" value="{{ old('name', $user->name) }}" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Email *</label>
+                <input type="email" name="email" class="form-input" value="{{ old('email', $user->email) }}" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Phone</label>
+                    <input type="text" name="phone" class="form-input" value="{{ old('phone', $user->phone) }}" placeholder="e.g., 081234567890">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Gender</label>
+                    <select name="gender" class="form-input">
+                        <option value="">Select...</option>
+                        <option value="male" {{ old('gender', $user->gender) === 'male' ? 'selected' : '' }}>Male</option>
+                        <option value="female" {{ old('gender', $user->gender) === 'female' ? 'selected' : '' }}>Female</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Date of Birth</label>
+                <input type="date" name="date_of_birth" class="form-input" value="{{ old('date_of_birth', $user->date_of_birth ? $user->date_of_birth->format('Y-m-d') : '') }}" max="{{ date('Y-m-d') }}">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Bio</label>
+                <textarea name="bio" class="form-input" rows="3" maxlength="500" placeholder="Tell us about yourself...">{{ old('bio', $user->bio) }}</textarea>
+                <small style="color: #666; font-size: 0.85rem;">Maximum 500 characters</small>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Profile Photo</label>
+                <input type="file" name="photo" class="form-input" accept="image/*" id="photoInput">
+                <small style="color: #666; font-size: 0.85rem;">Max 2MB (JPEG, PNG, JPG)</small>
+                
+                @if($user->photo)
+                <div style="margin-top: 10px;">
+                    <img src="{{ asset('storage/' . $user->photo) }}" alt="Current photo" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px;">
+                </div>
+                @endif
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeEditProfileModal()">Cancel</button>
+                <button type="submit" class="btn-save">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @endsection
 
 @section('js')
 <script src="{{ asset('js/profile.js') }}"></script>
+<script>
+function openEditProfileModal() {
+    document.getElementById('editProfileModal').style.display = 'flex';
+}
+
+function closeEditProfileModal() {
+    document.getElementById('editProfileModal').style.display = 'none';
+}
+
+// Close modal on outside click
+window.addEventListener('click', (e) => {
+    const modal = document.getElementById('editProfileModal');
+    if (e.target === modal) {
+        closeEditProfileModal();
+    }
+});
+</script>
 @endsection

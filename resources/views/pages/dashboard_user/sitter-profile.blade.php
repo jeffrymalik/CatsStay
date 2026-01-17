@@ -78,10 +78,10 @@
                         <h3>Book {{ $sitter['name'] }}</h3>
                         <p class="price-range">Starting from <span class="price">Rp {{ number_format(collect($sitter['services'])->min('price'), 0, ',', '.') }}</span></p>
                         
-                        <button class="btn-book-now" onclick="window.location.href='{{ route('booking.create', $sitter['id']) }}'">
-                            <i class="fas fa-calendar-plus"></i>
+                        <a href="{{ route('booking.create', $sitter['id']) }}" class="btn-book-now">
+                            <i class="fas fa-calendar-check"></i>
                             Book Now
-                        </button>
+                        </a>
                         
                         <button class="btn-message">
                             <i class="fas fa-comment-dots"></i>
@@ -155,7 +155,7 @@
             <div class="gallery-grid">
                 @foreach($sitter['gallery'] as $index => $photo)
                 <div class="gallery-item" onclick="openLightbox({{ $index }})">
-                    <img src="{{ $photo }}" alt="Gallery photo {{ $index + 1 }}">
+                    <img src="{{ asset('storage/' . $photo) }}" alt="Gallery photo {{ $index + 1 }}">
                     <div class="gallery-overlay">
                         <i class="fas fa-search-plus"></i>
                     </div>
